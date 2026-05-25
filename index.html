@@ -424,7 +424,7 @@ async function renderMessenger() {
     var etaClass = isLate ? 'late' : (isWarn ? 'warn' : '');
     riHtml = '<div class="route-info">' +
       '<div class="ri-row"><span class="ri-label"><i class="ti ti-map-pin" style="font-size:11px"></i> Zona</span><span class="ri-val accent">' + esc(zoneDisplay) + '</span></div>' +
-      '<div class="ri-row"><span class="ri-label"><i class="ti ti-package" style="font-size:11px"></i> Domicilios</span><span class="ri-val">' + st.doms + '</span></div>' +
+      '<div class="ri-row"><span class="ri-label"><i class="ti ti-package" style="font-size:11px"></i> Domicilios</span><span class="ri-val">' + ((st.deliveredCount||0) > 0 ? (st.deliveredCount + '/' + st.doms + ' entregados') : st.doms + ' pendientes') + '</span></div>' +
       '<div class="ri-row"><span class="ri-label"><i class="ti ti-clock" style="font-size:11px"></i> Salida</span><span class="ri-val">' + (st.startTime || '-') + '</span></div>' +
       '<div class="ri-row"><span class="ri-label"><i class="ti ti-target" style="font-size:11px"></i> Est. regreso</span><span class="ri-val ' + etaClass + '">' + (st.etaTime || '-') + '</span></div>' +
       '</div>';
@@ -435,11 +435,24 @@ async function renderMessenger() {
   if (stKey === 'libre') {
     btnsHtml = '<button class="action-btn ab-route" onclick="showRouteForm()"><i class="ti ti-motorbike"></i> Salir en Ruta</button>';
   } else if (stKey === 'en_ruta') {
-    btnsHtml = '<button class="action-btn ab-delivered" onclick="doTransition(\'entregado\')"><i class="ti ti-package"></i> Marcar Entregado</button>' +
-      '<button class="action-btn ab-returning" onclick="doTransition(\'devolviendo\')"><i class="ti ti-arrow-back"></i> Devolverme ya</button>';
-  } else if (stKey === 'entregado') {
-    btnsHtml = '<button class="action-btn ab-returning" onclick="doTransition(\'devolviendo\')"><i class="ti ti-arrow-back"></i> Ya entregue - Devolverme</button>';
-  } else if (stKey === 'devolviendo') {
+    var deliveredCount = (st && st.deliveredCount) ? st.deliveredCount : 0;
+    var totalDoms = st ? st.doms : 1;
+    var allDelivered = st && (st.allDelivered || deliveredCount >= totalDoms);
+    if (allDelivered) {
+      btnsHtml = '<div style="background:var(--green-dim);border:1px solid rgba(0,255,136,0.2);border-radius:var(--radius-xs);padding:10px 13px;margin-bottom:8px;font-size:12px;font-weight:600;color:var(--green);display:flex;align-items:center;gap:7px"><i class="ti ti-checks" style="font-size:16px"></i> Todos los ' + totalDoms + ' pedidos entregados</div>' +
+        '<button class="action-btn ab-returning" onclick="doTransition(\'devolviendo\')"><i class="ti ti-arrow-back"></i> Devolverme al almacen</button>';
+    } else {
+      var chips = '';
+      for (var i = 0; i < deliveredCount; i++) {
+        chips += '<div style="display:flex;align-items:center;gap:7px;padding:8px 12px;background:var(--green-dim);border:1px solid rgba(0,255,136,0.2);border-radius:var(--radius-xs);margin-bottom:6px;font-size:12px;font-weight:600;color:var(--green)"><i class="ti ti-circle-check" style="font-size:15px"></i> Pedido ' + (i+1) + ' entregado</div>';
+      }
+      var nextNum = deliveredCount + 1;
+      var pending = totalDoms - deliveredCount;
+      btnsHtml = chips +
+        '<button class="action-btn ab-delivered" onclick="markDelivery(' + nextNum + ')"><i class="ti ti-package"></i> Entregar pedido ' + nextNum + ' de ' + totalDoms + '</button>' +
+        (deliveredCount > 0 ? '<div style="font-size:11px;color:var(--text3);text-align:center;margin-top:4px">Faltan ' + pending + ' pedido' + (pending>1?'s':'') + ' por entregar</div>' : '');
+    }
+  } else if (stKey === 'devolviendo') {  } else if (stKey === 'devolviendo') {
     btnsHtml = '<button class="action-btn ab-free" onclick="doTransition(\'libre\')"><i class="ti ti-home-check"></i> Llegue - Estoy Libre</button>';
   }
   if (isLate && stKey !== 'libre') {
@@ -553,10 +566,39 @@ async function confirmRoute() {
     var z = ZONES.find(function(z) { return z.key === k; });
     return z ? z.name : k;
   }).join(', ');
-  var data = {state:'en_ruta', zones:selectedZones, zone:selectedZones[0], doms:selectedDoms, totalMins:totalMins, ts:now, startTime:nowTime(), etaTime:etaTime, zoneNames:zoneNames};
+  var data = {state:'en_ruta', zones:selectedZones, zone:selectedZones[0], doms:selectedDoms, deliveredCount:0, totalMins:totalMins, ts:now, startTime:nowTime(), etaTime:etaTime, zoneNames:zoneNames};
   await setState(messengerName, data);
   await addHistory(today(), messengerName, {state:'en_ruta', time:nowTime(), zone:zoneNames, doms:selectedDoms, etaTime:etaTime});
   showingRouteForm = false;
+  renderMessenger();
+}
+
+async function markDelivery(num) {
+  var current = await getState(messengerName) || {};
+  var now = Date.now();
+  var newCount = (current.deliveredCount || 0) + 1;
+  var allDone = newCount >= current.doms;
+
+  await addHistory(today(), messengerName, {state:'entregado', time:nowTime(), pedido: num});
+
+  if (allDone) {
+    // All delivered — recalculate ETA for return trip
+    var zoneKeys = current.zones || [current.zone];
+    var totalZoneMins = zoneKeys.reduce(function(s, k) {
+      var z = ZONES.find(function(z) { return z.key === k; });
+      return s + (z ? z.mins : 0);
+    }, 0) || 30;
+    var spentMins = Math.round(elapsed(current.ts) / 60);
+    var returnMins = Math.round(totalZoneMins * 0.5);
+    var newTotal = spentMins + returnMins;
+    var etaMs = now + returnMins * 60 * 1000;
+    var etaTime = new Date(etaMs).toLocaleTimeString('es-CO', {timeZone:TZ, hour:'2-digit', minute:'2-digit', hour12:true});
+    var data = Object.assign({}, current, {deliveredCount:newCount, allDelivered:true, totalMins:newTotal, etaTime:etaTime, ts:current.ts});
+    await setState(messengerName, data);
+  } else {
+    var data = Object.assign({}, current, {deliveredCount:newCount});
+    await setState(messengerName, data);
+  }
   renderMessenger();
 }
 
@@ -583,7 +625,7 @@ async function doTransition(newState) {
     var etaTime2 = new Date(etaMs2).toLocaleTimeString('es-CO', {timeZone:TZ, hour:'2-digit', minute:'2-digit', hour12:true});
     data = Object.assign({}, data, {totalMins:newTotal, etaTime:etaTime2});
   } else if (newState === 'devolviendo') {
-    await addHistory(today(), messengerName, {state:'devolviendo', time:nowTime()});
+    await addHistory(today(), messengerName, {state:'devolviendo', time:nowTime(), doms: current.doms, deliveredCount: current.deliveredCount||0});
     var zoneKeys2 = current.zones || [current.zone];
     var totalZoneMins2 = zoneKeys2.reduce(function(s, k) {
       var z = ZONES.find(function(z) { return z.key === k; });
