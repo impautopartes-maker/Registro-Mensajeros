@@ -452,7 +452,9 @@ async function renderMessenger() {
         '<button class="action-btn ab-delivered" onclick="markDelivery(' + nextNum + ')"><i class="ti ti-package"></i> Entregar pedido ' + nextNum + ' de ' + totalDoms + '</button>' +
         (deliveredCount > 0 ? '<div style="font-size:11px;color:var(--text3);text-align:center;margin-top:4px">Faltan ' + pending + ' pedido' + (pending>1?'s':'') + ' por entregar</div>' : '');
     }
-  } else if (stKey === 'devolviendo') {  } else if (stKey === 'devolviendo') {
+  } else if (stKey === 'devolviendo') {
+    btnsHtml = '<button class="action-btn ab-free" onclick="doTransition(\'libre\')"><i class="ti ti-home-check"></i> Llegue - Estoy Libre</button>';
+  } else if (stKey === 'devolviendo') {
     btnsHtml = '<button class="action-btn ab-free" onclick="doTransition(\'libre\')"><i class="ti ti-home-check"></i> Llegue - Estoy Libre</button>';
   }
   if (isLate && stKey !== 'libre') {
