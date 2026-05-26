@@ -244,18 +244,18 @@ tr:hover td{background:rgba(0,212,255,0.02);}
 var TZ = 'America/Bogota';
 var MESSENGERS = ['JOTA','PRÍNCIPE','CRISTIAN','JAIME','YASSER'];
 var ZONES = [
-  {key:'z1', name:'Enciso / Buenos Aires', mins:25, returnMins:20},
-  {key:'z2', name:'Centro / San Juan',     mins:20, returnMins:15},
-  {key:'z3', name:'Cristo Rey',            mins:28, returnMins:22},
-  {key:'z4', name:'Laureles',              mins:35, returnMins:28},
-  {key:'z5', name:'Belén',                 mins:38, returnMins:30},
-  {key:'z6', name:'Guayabal',              mins:32, returnMins:25},
-  {key:'z7', name:'El Poblado',            mins:30, returnMins:24},
-  {key:'z8', name:'Envigado',              mins:45, returnMins:35},
-  {key:'z9', name:'Itagüí',               mins:42, returnMins:33},
-  {key:'z10',name:'La Estrella',           mins:55, returnMins:42},
-  {key:'z11',name:'Bello',                 mins:50, returnMins:40},
-  {key:'z12',name:'Castilla / Robledo',    mins:36, returnMins:28}
+  {key:'z1',  name:'Enciso / Buenos Aires', mins:35, goMins:15, returnMins:15},
+  {key:'z2',  name:'Centro / San Juan',     mins:21, goMins:8,  returnMins:8},
+  {key:'z3',  name:'Cristo Rey',            mins:43, goMins:20, returnMins:18},
+  {key:'z4',  name:'Laureles',              mins:47, goMins:22, returnMins:20},
+  {key:'z5',  name:'Belén',                 mins:52, goMins:25, returnMins:22},
+  {key:'z6',  name:'Guayabal',              mins:39, goMins:18, returnMins:16},
+  {key:'z7',  name:'El Poblado',            mins:43, goMins:20, returnMins:18},
+  {key:'z8',  name:'Envigado',              mins:70, goMins:35, returnMins:30},
+  {key:'z9',  name:'Itagüí',               mins:61, goMins:30, returnMins:26},
+  {key:'z10', name:'La Estrella',           mins:88, goMins:45, returnMins:38},
+  {key:'z11', name:'Bello',                 mins:70, goMins:35, returnMins:30},
+  {key:'z12', name:'Castilla / Robledo',    mins:52, goMins:25, returnMins:22}
 ];
 var STATE_CFG = {
   libre:      {label:'Libre',          sub:'Sin domicilios pendientes', ic:'ci-free',      icon:'ti-home-check',   badge:'sb-free',      card:'cs-free',     mc:'mc-free'},
@@ -494,7 +494,7 @@ function renderRouteForm() {
     var sel = selectedZones.indexOf(z.key) >= 0 ? ' selected' : '';
     return '<div class="zone-card' + sel + '" onclick="selectZone(\'' + z.key + '\')">' +
       '<div class="zc-name">' + esc(z.name) + '</div>' +
-      '<div class="zc-time">~' + z.mins + ' min</div>' +
+      '<div class="zc-time">ida ~' + (z.goMins||z.mins) + ' min</div>' +
       '</div>';
   }).join('');
 
@@ -504,11 +504,10 @@ function renderRouteForm() {
       var z = ZONES.find(function(z) { return z.key === k; });
       return z ? z.name : '';
     }).join(' + ');
-    var mins = selectedZones.reduce(function(s, k) {
-      var z = ZONES.find(function(z) { return z.key === k; });
-      return s + (z ? z.mins : 0);
-    }, 0) + (selectedDoms - 1) * 8;
-    summaryHtml = '<i class="ti ti-check" style="color:var(--green)"></i> ' + esc(names) + ' — ~' + mins + ' min estimado';
+    var fz = ZONES.find(function(z){return z.key===selectedZones[0];}) || {goMins:20,returnMins:20};
+    var lz = ZONES.find(function(z){return z.key===selectedZones[selectedZones.length-1];}) || {returnMins:20};
+    var rMins = fz.goMins + (selectedZones.length-1)*10 + selectedDoms*5 + lz.returnMins;
+    summaryHtml = '<i class="ti ti-check" style="color:var(--green)"></i> ' + esc(names) + ' — ~' + rMins + ' min estimado';
   } else {
     summaryHtml = '<span style="color:var(--text3)">Selecciona una o mas zonas arriba</span>';
   }
@@ -559,17 +558,17 @@ async function confirmRoute() {
     return;
   }
   var now = Date.now();
-  // Continuous route: first zone full time + each extra zone adds only incremental time (avg 12 min between zones)
-  // Return is calculated from LAST selected zone
-  var firstZone = ZONES.find(function(z) { return z.key === selectedZones[0]; }) || {mins:30, returnMins:25};
-  var lastZone  = ZONES.find(function(z) { return z.key === selectedZones[selectedZones.length-1]; }) || {mins:30, returnMins:25};
-  var goMins = firstZone.mins; // time to reach first zone
+  // Continuous route from Metro Alpujarra (Cra 51 #41-42):
+  // Go to first zone + 10min between each extra zone + return from LAST zone selected
+  var firstZone = ZONES.find(function(z) { return z.key === selectedZones[0]; }) || {goMins:20, returnMins:20};
+  var lastZone  = ZONES.find(function(z) { return z.key === selectedZones[selectedZones.length-1]; }) || {goMins:20, returnMins:20};
+  var routeMins = firstZone.goMins; // ride to first zone
   for (var zi = 1; zi < selectedZones.length; zi++) {
-    goMins += 12; // avg time between consecutive zones in the city
+    routeMins += 10; // avg riding time between consecutive delivery zones
   }
-  var extraDoms = (selectedDoms - 1) * 8;
-  var returnMinsCalc = lastZone.returnMins; // return from last zone
-  var totalMins = goMins + extraDoms + returnMinsCalc;
+  var deliveryTime = selectedDoms * 5; // ~5 min per delivery stop
+  var returnMinsCalc = lastZone.returnMins; // ride back from last zone
+  var totalMins = routeMins + deliveryTime + returnMinsCalc;
   var etaMs = now + totalMins * 60 * 1000;
   var etaTime = new Date(etaMs).toLocaleTimeString('es-CO', {timeZone:TZ, hour:'2-digit', minute:'2-digit', hour12:true});
   var zoneNames = selectedZones.map(function(k) {
