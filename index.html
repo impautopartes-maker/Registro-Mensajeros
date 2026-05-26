@@ -244,16 +244,18 @@ tr:hover td{background:rgba(0,212,255,0.02);}
 var TZ = 'America/Bogota';
 var MESSENGERS = ['JOTA','PRÍNCIPE','CRISTIAN','JAIME','YASSER'];
 var ZONES = [
-  {key:'z1',name:'Buenos Aires / Enciso',mins:25},
-  {key:'z2',name:'Centro / Av. El Poblado',mins:30},
-  {key:'z3',name:'Manrique / Norte',mins:31},
-  {key:'z4',name:'Castilla',mins:34},
-  {key:'z5',name:'Robledo / Estadio',mins:38},
-  {key:'z6',name:'Centro / Otros',mins:40},
-  {key:'z7',name:'Laureles / Occidente',mins:45},
-  {key:'z8',name:'Mayorista / Sur',mins:45},
-  {key:'z9',name:'Belén',mins:46},
-  {key:'z10',name:'Municipios',mins:60}
+  {key:'z1', name:'Enciso / Buenos Aires', mins:25, returnMins:20},
+  {key:'z2', name:'Centro / San Juan',     mins:20, returnMins:15},
+  {key:'z3', name:'Cristo Rey',            mins:28, returnMins:22},
+  {key:'z4', name:'Laureles',              mins:35, returnMins:28},
+  {key:'z5', name:'Belén',                 mins:38, returnMins:30},
+  {key:'z6', name:'Guayabal',              mins:32, returnMins:25},
+  {key:'z7', name:'El Poblado',            mins:30, returnMins:24},
+  {key:'z8', name:'Envigado',              mins:45, returnMins:35},
+  {key:'z9', name:'Itagüí',               mins:42, returnMins:33},
+  {key:'z10',name:'La Estrella',           mins:55, returnMins:42},
+  {key:'z11',name:'Bello',                 mins:50, returnMins:40},
+  {key:'z12',name:'Castilla / Robledo',    mins:36, returnMins:28}
 ];
 var STATE_CFG = {
   libre:      {label:'Libre',          sub:'Sin domicilios pendientes', ic:'ci-free',      icon:'ti-home-check',   badge:'sb-free',      card:'cs-free',     mc:'mc-free'},
@@ -557,22 +559,24 @@ async function confirmRoute() {
     return;
   }
   var now = Date.now();
-  // Use farthest zone time + 10 min per extra zone (continuous route, not separate trips)
-  var zoneTimes = selectedZones.map(function(k) {
-    var z = ZONES.find(function(z) { return z.key === k; });
-    return z ? z.mins : 0;
-  });
-  var maxZone = Math.max.apply(null, zoneTimes);
-  var extraZones = selectedZones.length > 1 ? (selectedZones.length - 1) * 10 : 0;
+  // Continuous route: first zone full time + each extra zone adds only incremental time (avg 12 min between zones)
+  // Return is calculated from LAST selected zone
+  var firstZone = ZONES.find(function(z) { return z.key === selectedZones[0]; }) || {mins:30, returnMins:25};
+  var lastZone  = ZONES.find(function(z) { return z.key === selectedZones[selectedZones.length-1]; }) || {mins:30, returnMins:25};
+  var goMins = firstZone.mins; // time to reach first zone
+  for (var zi = 1; zi < selectedZones.length; zi++) {
+    goMins += 12; // avg time between consecutive zones in the city
+  }
   var extraDoms = (selectedDoms - 1) * 8;
-  var totalMins = maxZone + extraZones + extraDoms;
+  var returnMinsCalc = lastZone.returnMins; // return from last zone
+  var totalMins = goMins + extraDoms + returnMinsCalc;
   var etaMs = now + totalMins * 60 * 1000;
   var etaTime = new Date(etaMs).toLocaleTimeString('es-CO', {timeZone:TZ, hour:'2-digit', minute:'2-digit', hour12:true});
   var zoneNames = selectedZones.map(function(k) {
     var z = ZONES.find(function(z) { return z.key === k; });
     return z ? z.name : k;
   }).join(', ');
-  var data = {state:'en_ruta', zones:selectedZones, zone:selectedZones[0], doms:selectedDoms, deliveredCount:0, totalMins:totalMins, ts:now, startTime:nowTime(), etaTime:etaTime, zoneNames:zoneNames};
+  var data = {state:'en_ruta', zones:selectedZones, zone:selectedZones[0], lastZone:selectedZones[selectedZones.length-1], doms:selectedDoms, deliveredCount:0, totalMins:totalMins, returnMinsCalc:returnMinsCalc, ts:now, startTime:nowTime(), etaTime:etaTime, zoneNames:zoneNames};
   await setState(messengerName, data);
   await addHistory(today(), messengerName, {state:'en_ruta', time:nowTime(), zone:zoneNames, doms:selectedDoms, etaTime:etaTime});
   showingRouteForm = false;
@@ -586,6 +590,9 @@ async function markDelivery(num) {
   var allDone = newCount >= current.doms;
 
   await addHistory(today(), messengerName, {state:'entregado', time:nowTime(), pedido: num});
+  // Save individual delivery timestamps on state
+  var deliveryTimes = current.deliveryTimes || {};
+  deliveryTimes['p'+num] = nowTime();
 
   if (allDone) {
     // All delivered — recalculate ETA for return trip
@@ -599,10 +606,10 @@ async function markDelivery(num) {
     var newTotal = spentMins + returnMins;
     var etaMs = now + returnMins * 60 * 1000;
     var etaTime = new Date(etaMs).toLocaleTimeString('es-CO', {timeZone:TZ, hour:'2-digit', minute:'2-digit', hour12:true});
-    var data = Object.assign({}, current, {deliveredCount:newCount, allDelivered:true, totalMins:newTotal, etaTime:etaTime, ts:current.ts, timeEntregando:nowTime()});
+    var data = Object.assign({}, current, {deliveredCount:newCount, allDelivered:true, totalMins:newTotal, etaTime:etaTime, ts:current.ts, timeEntregando:nowTime(), deliveryTimes:deliveryTimes});
     await setState(messengerName, data);
   } else {
-    var data = Object.assign({}, current, {deliveredCount:newCount});
+    var data = Object.assign({}, current, {deliveredCount:newCount, deliveryTimes:deliveryTimes});
     await setState(messengerName, data);
   }
   renderMessenger();
@@ -620,31 +627,25 @@ async function doTransition(newState) {
   } else if (newState === 'entregado') {
     await addHistory(today(), messengerName, {state:'entregado', time:nowTime()});
     data = Object.assign({}, data, {timeEntregando: nowTime()});
-    var zoneKeys = current.zones || [current.zone];
-    var totalZoneMins = zoneKeys.reduce(function(s, k) {
-      var z = ZONES.find(function(z) { return z.key === k; });
-      return s + (z ? z.mins : 0);
-    }, 0) || 30;
+    var lastZoneKey = current.lastZone || (current.zones ? current.zones[current.zones.length-1] : current.zone);
+    var lastZoneObj = ZONES.find(function(z) { return z.key === lastZoneKey; }) || {returnMins:25};
+    var returnMins = lastZoneObj.returnMins;
     var spentMins = Math.round(elapsed(current.ts) / 60);
-    var returnMins = Math.round(totalZoneMins * 0.5);
     var newTotal = spentMins + returnMins;
     var etaMs2 = now + returnMins * 60 * 1000;
     var etaTime2 = new Date(etaMs2).toLocaleTimeString('es-CO', {timeZone:TZ, hour:'2-digit', minute:'2-digit', hour12:true});
-    data = Object.assign({}, data, {totalMins:newTotal, etaTime:etaTime2});
+    data = Object.assign({}, data, {totalMins:newTotal, etaTime:etaTime2, returnMinsCalc:returnMins});
   } else if (newState === 'devolviendo') {
     await addHistory(today(), messengerName, {state:'devolviendo', time:nowTime(), doms: current.doms, deliveredCount: current.deliveredCount||0});
     data = Object.assign({}, data, {timeDevolviendo: nowTime()});
-    var zoneKeys2 = current.zones || [current.zone];
-    var totalZoneMins2 = zoneKeys2.reduce(function(s, k) {
-      var z = ZONES.find(function(z) { return z.key === k; });
-      return s + (z ? z.mins : 0);
-    }, 0) || 30;
-    var spentMins2 = Math.round(elapsed(current.ts) / 60);
-    var returnMins2 = Math.round(totalZoneMins2 * 0.5);
-    var newTotal2 = spentMins2 + returnMins2;
-    var etaMs3 = now + returnMins2 * 60 * 1000;
-    var etaTime3 = new Date(etaMs3).toLocaleTimeString('es-CO', {timeZone:TZ, hour:'2-digit', minute:'2-digit', hour12:true});
-    data = Object.assign({}, data, {totalMins:newTotal2, etaTime:etaTime3});
+    var lastZoneKey2 = current.lastZone || (current.zones ? current.zones[current.zones.length-1] : current.zone);
+    var lastZoneObj2 = ZONES.find(function(z) { return z.key === lastZoneKey2; }) || {returnMins:25};
+    var returnMins3 = lastZoneObj2.returnMins;
+    var spentMins3 = Math.round(elapsed(current.ts) / 60);
+    var newTotal3 = spentMins3 + returnMins3;
+    var etaMs4 = now + returnMins3 * 60 * 1000;
+    var etaTime4 = new Date(etaMs4).toLocaleTimeString('es-CO', {timeZone:TZ, hour:'2-digit', minute:'2-digit', hour12:true});
+    data = Object.assign({}, data, {totalMins:newTotal3, etaTime:etaTime4, returnMinsCalc:returnMins3});
   }
   await setState(messengerName, data);
   renderMessenger();
@@ -734,16 +735,25 @@ async function renderAdmin() {
           '<span class="state-badge ' + cfg.badge + '" style="font-size:11px">' + cfg.label.toUpperCase() + '</span>' +
         '</div>' +
         (stKey !== 'libre' ?
-          '<div class="mc-body">' +
-            (totalSecs ? '<div class="mc-progress"><div class="mc-pf ' + pfClass + '" style="width:' + pct + '%"></div></div>' : '') +
-            '<div class="mc-detail-row"><span class="mc-dl">Zona(s)</span><span class="mc-dv" style="font-size:10px">' + esc(zoneDisplay) + '</span></div>' +
-            '<div class="mc-detail-row"><span class="mc-dl">Domicilios</span><span class="mc-dv">' + (st.deliveredCount||0) + '/' + (st.doms||1) + ' entregados</span></div>' +
-            '<div class="mc-detail-row"><span class="mc-dl">Salio</span><span class="mc-dv">' + (st.startTime||'-') + '</span></div>' +
-            (st.timeEntregando ? '<div class="mc-detail-row"><span class="mc-dl">Entregando desde</span><span class="mc-dv" style="color:var(--yellow)">' + st.timeEntregando + '</span></div>' : '') +
-            (st.timeDevolviendo ? '<div class="mc-detail-row"><span class="mc-dl">Regresando desde</span><span class="mc-dv" style="color:var(--orange)">' + st.timeDevolviendo + '</span></div>' : '') +
-            '<div class="mc-detail-row"><span class="mc-dl">ETA regreso</span><span class="mc-dv ' + valClass + '">' + (st.etaTime||'-') + '</span></div>' +
-            '<div class="mc-detail-row"><span class="mc-dl">Tiempo en ruta</span><span class="mc-dv ' + valClass + '" id="adm-cd-' + m + '" data-ts="' + (st.ts||0) + '" data-total="' + totalSecs + '">' + timeDisp + '</span></div>' +
-          '</div>' : '') +
+          (function(){
+              var delivRows = '';
+              if (st.doms > 1) {
+                for (var pi = 1; pi <= st.doms; pi++) {
+                  var ptime = (st.deliveryTimes && st.deliveryTimes['p'+pi]) ? st.deliveryTimes['p'+pi] : null;
+                  delivRows += '<div class="mc-detail-row"><span class="mc-dl">Pedido ' + pi + '</span><span class="mc-dv">' +
+                    (ptime ? '<span style="color:var(--green)">' + ptime + '</span>' : '<span style="color:var(--text3)">Pendiente</span>') + '</span></div>';
+                }
+              }
+              return '<div class="mc-body">' +
+                (totalSecs ? '<div class="mc-progress"><div class="mc-pf ' + pfClass + '" style="width:' + pct + '%"></div></div>' : '') +
+                '<div class="mc-detail-row"><span class="mc-dl">Zona(s)</span><span class="mc-dv" style="font-size:10px">' + esc(zoneDisplay) + '</span></div>' +
+                '<div class="mc-detail-row"><span class="mc-dl">Salio</span><span class="mc-dv">' + (st.startTime||'-') + '</span></div>' +
+                (st.timeDevolviendo ? '<div class="mc-detail-row"><span class="mc-dl">Regresando desde</span><span class="mc-dv" style="color:var(--orange)">' + st.timeDevolviendo + '</span></div>' : '') +
+                '<div class="mc-detail-row"><span class="mc-dl">ETA regreso</span><span class="mc-dv ' + valClass + '">' + (st.etaTime||'-') + '</span></div>' +
+                '<div class="mc-detail-row"><span class="mc-dl">Tiempo restante</span><span class="mc-dv ' + valClass + '" id="adm-cd-' + m + '" data-ts="' + (st.ts||0) + '" data-total="' + totalSecs + '">' + timeDisp + '</span></div>' +
+                delivRows +
+                '</div>';
+            })() : '') +
         '</div>';
     }).join('');
     body = '<div class="metrics-grid">' +
