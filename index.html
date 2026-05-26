@@ -557,11 +557,15 @@ async function confirmRoute() {
     return;
   }
   var now = Date.now();
-  var zoneMins = selectedZones.reduce(function(s, k) {
+  // Use farthest zone time + 10 min per extra zone (continuous route, not separate trips)
+  var zoneTimes = selectedZones.map(function(k) {
     var z = ZONES.find(function(z) { return z.key === k; });
-    return s + (z ? z.mins : 0);
-  }, 0);
-  var totalMins = zoneMins + (selectedDoms - 1) * 8;
+    return z ? z.mins : 0;
+  });
+  var maxZone = Math.max.apply(null, zoneTimes);
+  var extraZones = selectedZones.length > 1 ? (selectedZones.length - 1) * 10 : 0;
+  var extraDoms = (selectedDoms - 1) * 8;
+  var totalMins = maxZone + extraZones + extraDoms;
   var etaMs = now + totalMins * 60 * 1000;
   var etaTime = new Date(etaMs).toLocaleTimeString('es-CO', {timeZone:TZ, hour:'2-digit', minute:'2-digit', hour12:true});
   var zoneNames = selectedZones.map(function(k) {
@@ -595,7 +599,7 @@ async function markDelivery(num) {
     var newTotal = spentMins + returnMins;
     var etaMs = now + returnMins * 60 * 1000;
     var etaTime = new Date(etaMs).toLocaleTimeString('es-CO', {timeZone:TZ, hour:'2-digit', minute:'2-digit', hour12:true});
-    var data = Object.assign({}, current, {deliveredCount:newCount, allDelivered:true, totalMins:newTotal, etaTime:etaTime, ts:current.ts});
+    var data = Object.assign({}, current, {deliveredCount:newCount, allDelivered:true, totalMins:newTotal, etaTime:etaTime, ts:current.ts, timeEntregando:nowTime()});
     await setState(messengerName, data);
   } else {
     var data = Object.assign({}, current, {deliveredCount:newCount});
@@ -615,6 +619,7 @@ async function doTransition(newState) {
     data = {state:'libre', ts:now};
   } else if (newState === 'entregado') {
     await addHistory(today(), messengerName, {state:'entregado', time:nowTime()});
+    data = Object.assign({}, data, {timeEntregando: nowTime()});
     var zoneKeys = current.zones || [current.zone];
     var totalZoneMins = zoneKeys.reduce(function(s, k) {
       var z = ZONES.find(function(z) { return z.key === k; });
@@ -628,6 +633,7 @@ async function doTransition(newState) {
     data = Object.assign({}, data, {totalMins:newTotal, etaTime:etaTime2});
   } else if (newState === 'devolviendo') {
     await addHistory(today(), messengerName, {state:'devolviendo', time:nowTime(), doms: current.doms, deliveredCount: current.deliveredCount||0});
+    data = Object.assign({}, data, {timeDevolviendo: nowTime()});
     var zoneKeys2 = current.zones || [current.zone];
     var totalZoneMins2 = zoneKeys2.reduce(function(s, k) {
       var z = ZONES.find(function(z) { return z.key === k; });
@@ -730,10 +736,13 @@ async function renderAdmin() {
         (stKey !== 'libre' ?
           '<div class="mc-body">' +
             (totalSecs ? '<div class="mc-progress"><div class="mc-pf ' + pfClass + '" style="width:' + pct + '%"></div></div>' : '') +
-            '<div class="mc-detail-row"><span class="mc-dl">Zona</span><span class="mc-dv" style="font-size:10px">' + esc(zoneDisplay) + '</span></div>' +
+            '<div class="mc-detail-row"><span class="mc-dl">Zona(s)</span><span class="mc-dv" style="font-size:10px">' + esc(zoneDisplay) + '</span></div>' +
+            '<div class="mc-detail-row"><span class="mc-dl">Domicilios</span><span class="mc-dv">' + (st.deliveredCount||0) + '/' + (st.doms||1) + ' entregados</span></div>' +
             '<div class="mc-detail-row"><span class="mc-dl">Salio</span><span class="mc-dv">' + (st.startTime||'-') + '</span></div>' +
+            (st.timeEntregando ? '<div class="mc-detail-row"><span class="mc-dl">Entregando desde</span><span class="mc-dv" style="color:var(--yellow)">' + st.timeEntregando + '</span></div>' : '') +
+            (st.timeDevolviendo ? '<div class="mc-detail-row"><span class="mc-dl">Regresando desde</span><span class="mc-dv" style="color:var(--orange)">' + st.timeDevolviendo + '</span></div>' : '') +
             '<div class="mc-detail-row"><span class="mc-dl">ETA regreso</span><span class="mc-dv ' + valClass + '">' + (st.etaTime||'-') + '</span></div>' +
-            '<div class="mc-detail-row"><span class="mc-dl">Tiempo</span><span class="mc-dv ' + valClass + '" id="adm-cd-' + m + '" data-ts="' + (st.ts||0) + '" data-total="' + totalSecs + '">' + timeDisp + '</span></div>' +
+            '<div class="mc-detail-row"><span class="mc-dl">Tiempo en ruta</span><span class="mc-dv ' + valClass + '" id="adm-cd-' + m + '" data-ts="' + (st.ts||0) + '" data-total="' + totalSecs + '">' + timeDisp + '</span></div>' +
           '</div>' : '') +
         '</div>';
     }).join('');
