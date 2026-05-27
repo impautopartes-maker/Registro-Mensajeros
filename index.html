@@ -66,6 +66,13 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background-image:linear
 .cs-delivered{border-color:rgba(255,215,0,0.3);background:var(--yellow-dim);}
 .cs-returning{border-color:rgba(255,140,0,0.3);background:var(--orange-dim);}
 .cs-late{border-color:rgba(255,56,96,0.4);background:var(--red-dim);}
+.cs-provider{border-color:rgba(168,85,247,0.3);background:rgba(168,85,247,0.08);animation:providerPulse 2s ease-in-out infinite;}
+@keyframes providerPulse{0%,100%{box-shadow:0 0 0 0 rgba(168,85,247,0.1)}50%{box-shadow:0 0 16px 3px rgba(168,85,247,0.15)}}
+.ci-provider{background:rgba(168,85,247,0.1);color:#a855f7;}
+.sb-provider{background:rgba(168,85,247,0.12);color:#a855f7;border:1px solid rgba(168,85,247,0.2);}
+.mc-provider{border-color:rgba(168,85,247,0.25);}
+.ab-provider{background:linear-gradient(135deg,#a855f7,#7c3aed);color:#fff;box-shadow:0 4px 20px rgba(168,85,247,0.2);}
+.ab-provider:hover{transform:translateY(-1px);box-shadow:0 6px 26px rgba(168,85,247,0.3);}
 @keyframes routeGlow{0%,100%{box-shadow:0 0 0 0 rgba(0,212,255,0.1)}50%{box-shadow:0 0 16px 3px rgba(0,212,255,0.15)}}
 .cs-left{display:flex;align-items:center;gap:10px;}
 .cs-icon{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
@@ -244,25 +251,55 @@ tr:hover td{background:rgba(0,212,255,0.02);}
 var TZ = 'America/Bogota';
 var MESSENGERS = ['JOTA','PRÍNCIPE','CRISTIAN','JAIME','YASSER'];
 var ZONES = [
-  // Tiempos basados en historial real desde Cra 51 #41-42 (Metro Alpujarra)
-  {key:'z1',  name:'Centro / San Juan',     mins:30, goMins:15, returnMins:15},  // 455 registros reales
-  {key:'z2',  name:'Enciso / Buenos Aires', mins:25, goMins:15, returnMins:10},  // 4 registros
-  {key:'z3',  name:'Castilla / Robledo',    mins:25, goMins:15, returnMins:10},  // 9 registros
-  {key:'z4',  name:'El Poblado',            mins:30, goMins:15, returnMins:15},  // 2 registros
-  {key:'z5',  name:'Guayabal',              mins:45, goMins:25, returnMins:20},  // 20 registros reales
-  {key:'z6',  name:'Cristo Rey',            mins:40, goMins:22, returnMins:18},  // estimado
-  {key:'z7',  name:'Laureles',              mins:40, goMins:22, returnMins:18},  // 2 registros
-  {key:'z8',  name:'Belén',                 mins:50, goMins:28, returnMins:22},  // 6 registros reales
-  {key:'z9',  name:'Itagüí',               mins:55, goMins:30, returnMins:25},  // estimado conservador
-  {key:'z10', name:'Bello',                 mins:50, goMins:30, returnMins:20},  // 3 registros reales
-  {key:'z11', name:'Envigado',              mins:60, goMins:33, returnMins:27},  // estimado conservador
-  {key:'z12', name:'La Estrella',           mins:70, goMins:40, returnMins:30}   // 1 registro
+  {key:'z1',  name:'Centro / San Juan',     goMins:15, returnMins:15},
+  {key:'z2',  name:'Enciso / Buenos Aires', goMins:15, returnMins:10},
+  {key:'z3',  name:'Castilla / Robledo',    goMins:15, returnMins:10},
+  {key:'z4',  name:'El Poblado',            goMins:15, returnMins:15},
+  {key:'z5',  name:'Guayabal',              goMins:25, returnMins:20},
+  {key:'z6',  name:'Cristo Rey',            goMins:22, returnMins:18},
+  {key:'z7',  name:'Laureles',              goMins:22, returnMins:18},
+  {key:'z8',  name:'Belén',                 goMins:28, returnMins:22},
+  {key:'z9',  name:'Itagüí',               goMins:30, returnMins:25},
+  {key:'z10', name:'Bello',                 goMins:30, returnMins:20},
+  {key:'z11', name:'Envigado',              goMins:33, returnMins:27},
+  {key:'z12', name:'La Estrella',           goMins:40, returnMins:30}
 ];
+// Inter-zone travel times (moto, minutes between zones)
+var INTER_ZONE = {
+  'z1': {'z2':15,'z3':25,'z4':20,'z5':18,'z6':20,'z7':22,'z8':25,'z9':40,'z10':35,'z11':45,'z12':55},
+  'z2': {'z1':15,'z3':30,'z4':18,'z5':20,'z6':18,'z7':25,'z8':28,'z9':42,'z10':38,'z11':47,'z12':57},
+  'z3': {'z1':25,'z2':30,'z4':30,'z5':25,'z6':22,'z7':15,'z8':20,'z9':35,'z10':45,'z11':42,'z12':50},
+  'z4': {'z1':20,'z2':18,'z3':30,'z5':15,'z6':25,'z7':25,'z8':22,'z9':30,'z10':40,'z11':25,'z12':40},
+  'z5': {'z1':18,'z2':20,'z3':25,'z4':15,'z6':22,'z7':28,'z8':20,'z9':15,'z10':40,'z11':22,'z12':30},
+  'z6': {'z1':20,'z2':18,'z3':22,'z4':25,'z5':22,'z7':20,'z8':18,'z9':35,'z10':38,'z11':40,'z12':50},
+  'z7': {'z1':22,'z2':25,'z3':15,'z4':25,'z5':28,'z6':20,'z8':12,'z9':38,'z10':40,'z11':42,'z12':52},
+  'z8': {'z1':25,'z2':28,'z3':20,'z4':22,'z5':20,'z6':18,'z7':12,'z9':25,'z10':45,'z11':28,'z12':38},
+  'z9': {'z1':40,'z2':42,'z3':35,'z4':30,'z5':15,'z6':35,'z7':38,'z8':25,'z10':50,'z11':18,'z12':22},
+  'z10':{'z1':35,'z2':38,'z3':45,'z4':40,'z5':40,'z6':38,'z7':40,'z8':45,'z9':50,'z11':55,'z12':62},
+  'z11':{'z1':45,'z2':47,'z3':42,'z4':25,'z5':22,'z6':40,'z7':42,'z8':28,'z9':18,'z10':55,'z12':28},
+  'z12':{'z1':55,'z2':57,'z3':50,'z4':40,'z5':30,'z6':50,'z7':52,'z8':38,'z9':22,'z10':62,'z11':28}
+};
+function calcRouteMins(zones, doms) {
+  if (!zones || zones.length === 0) return 30;
+  var firstZone = ZONES.find(function(z){return z.key===zones[0];}) || {goMins:20};
+  var routeMins = firstZone.goMins; // from almacén to first zone
+  // Add inter-zone travel between consecutive zones
+  for (var i = 1; i < zones.length; i++) {
+    var from = zones[i-1], to = zones[i];
+    var interMins = (INTER_ZONE[from] && INTER_ZONE[from][to]) ? INTER_ZONE[from][to] : 15;
+    routeMins += interMins;
+  }
+  var deliveryTime = doms * 5; // ~5 min per delivery
+  var lastZone = ZONES.find(function(z){return z.key===zones[zones.length-1];}) || {returnMins:20};
+  var returnMins = lastZone.returnMins;
+  return {routeMins: routeMins, deliveryTime: deliveryTime, returnMins: returnMins, total: routeMins + deliveryTime + returnMins};
+}
 var STATE_CFG = {
-  libre:      {label:'Libre',          sub:'Sin domicilios pendientes', ic:'ci-free',      icon:'ti-home-check',   badge:'sb-free',      card:'cs-free',     mc:'mc-free'},
-  en_ruta:    {label:'En Ruta',        sub:'Dirigiéndose al cliente',   ic:'ci-route',     icon:'ti-motorbike',    badge:'sb-route',     card:'cs-route',    mc:'mc-route'},
-  entregado:  {label:'Entregando',     sub:'Realizando la entrega',     ic:'ci-delivered', icon:'ti-package',      badge:'sb-delivered', card:'cs-delivered',mc:'mc-delivered'},
-  devolviendo:{label:'Devolviéndose',  sub:'Regresando al almacén',     ic:'ci-returning', icon:'ti-arrow-back',   badge:'sb-returning', card:'cs-returning',mc:'mc-returning'}
+  libre:      {label:'Libre',          sub:'Sin domicilios pendientes',    ic:'ci-free',      icon:'ti-home-check',   badge:'sb-free',      card:'cs-free',     mc:'mc-free'},
+  en_ruta:    {label:'En Ruta',        sub:'Dirigiéndose al cliente',      ic:'ci-route',     icon:'ti-motorbike',    badge:'sb-route',     card:'cs-route',    mc:'mc-route'},
+  recoger:    {label:'Recogiendo',     sub:'Esperando repuesto proveedor', ic:'ci-provider',  icon:'ti-building-store',badge:'sb-provider',  card:'cs-provider', mc:'mc-provider'},
+  entregado:  {label:'Entregando',     sub:'Realizando la entrega',        ic:'ci-delivered', icon:'ti-package',      badge:'sb-delivered', card:'cs-delivered',mc:'mc-delivered'},
+  devolviendo:{label:'Devolviéndose',  sub:'Regresando al almacén',        ic:'ci-returning', icon:'ti-arrow-back',   badge:'sb-returning', card:'cs-returning',mc:'mc-returning'}
 };
 var K = {pwd:'mt_pwd', company:'mt_company', fb:'mt_firebase'};
 var DEFAULT_PWD = 'admin2025';
@@ -423,6 +460,7 @@ async function renderMessenger() {
   // Route info
   var riHtml = '';
   if (st && stKey !== 'libre') {
+    var providerRow = stKey === 'recoger' ? '<div class="ri-row"><span class="ri-label"><i class="ti ti-building-store" style="font-size:11px"></i> Proveedor desde</span><span class="ri-val" style="color:#a855f7">' + (st.providerTime||'-') + '</span></div>' : (st.providerTime && stKey !== 'recoger' ? '<div class="ri-row"><span class="ri-label"><i class="ti ti-building-store" style="font-size:11px"></i> Recogió en</span><span class="ri-val" style="color:var(--green)">' + (st.resumeTime||st.providerTime||'-') + '</span></div>' : '');
     var zoneDisplay = st.zoneNames || (ZONES.find(function(z){return z.key===st.zone;}) || {}).name || '-';
     var etaClass = isLate ? 'late' : (isWarn ? 'warn' : '');
     riHtml = '<div class="route-info">' +
@@ -453,12 +491,17 @@ async function renderMessenger() {
       var pending = totalDoms - deliveredCount;
       btnsHtml = chips +
         '<button class="action-btn ab-delivered" onclick="markDelivery(' + nextNum + ')"><i class="ti ti-package"></i> Entregar pedido ' + nextNum + ' de ' + totalDoms + '</button>' +
-        (deliveredCount > 0 ? '<div style="font-size:11px;color:var(--text3);text-align:center;margin-top:4px">Faltan ' + pending + ' pedido' + (pending>1?'s':'') + ' por entregar</div>' : '');
+        (deliveredCount > 0 ? '<div style="font-size:11px;color:var(--text3);text-align:center;margin-top:4px">Faltan ' + pending + ' pedido' + (pending>1?'s':'') + ' por entregar</div>' : '') +
+        '<button class="action-btn ab-provider" style="margin-top:4px" onclick="doTransition(\'recoger\')"><i class="ti ti-building-store"></i> Recoger en proveedor</button>';
     }
   } else if (stKey === 'devolviendo') {
     btnsHtml = '<button class="action-btn ab-free" onclick="doTransition(\'libre\')"><i class="ti ti-home-check"></i> Llegue - Estoy Libre</button>';
   } else if (stKey === 'devolviendo') {
     btnsHtml = '<button class="action-btn ab-free" onclick="doTransition(\'libre\')"><i class="ti ti-home-check"></i> Llegue - Estoy Libre</button>';
+  }
+  if (stKey === 'recoger') {
+    btnsHtml = '<div style="background:rgba(168,85,247,0.08);border:1px solid rgba(168,85,247,0.2);border-radius:var(--radius-xs);padding:10px 13px;margin-bottom:8px;font-size:12px;color:#a855f7;display:flex;align-items:center;gap:7px"><i class="ti ti-clock" style="font-size:16px"></i> Esperando repuesto — el proveedor está despachando</div>' +
+      '<button class="action-btn ab-route" onclick="doTransition(\'en_ruta\')"><i class="ti ti-motorbike"></i> Ya recogi — Continuar ruta</button>';
   }
   if (isLate && stKey !== 'libre') {
     btnsHtml += '<button class="action-btn ab-ghost" onclick="doTransition(\'libre\')"><i class="ti ti-home-check"></i> Marcar como libre</button>';
@@ -559,17 +602,11 @@ async function confirmRoute() {
     return;
   }
   var now = Date.now();
-  // Continuous route from Metro Alpujarra (Cra 51 #41-42):
-  // Go to first zone + 10min between each extra zone + return from LAST zone selected
-  var firstZone = ZONES.find(function(z) { return z.key === selectedZones[0]; }) || {goMins:20, returnMins:20};
-  var lastZone  = ZONES.find(function(z) { return z.key === selectedZones[selectedZones.length-1]; }) || {goMins:20, returnMins:20};
-  var routeMins = firstZone.goMins; // ride to first zone
-  for (var zi = 1; zi < selectedZones.length; zi++) {
-    routeMins += 10; // avg riding time between consecutive delivery zones
-  }
-  var deliveryTime = selectedDoms * 5; // ~5 min per delivery stop
-  var returnMinsCalc = lastZone.returnMins; // ride back from last zone
-  var totalMins = routeMins + deliveryTime + returnMinsCalc;
+  // Continuous route: almacén → zone1 → zone2 → ... → last zone → almacén
+  var routeCalc = calcRouteMins(selectedZones, selectedDoms);
+  var routeMins = routeCalc.routeMins;
+  var returnMinsCalc = routeCalc.returnMins;
+  var totalMins = routeCalc.total;
   var etaMs = now + totalMins * 60 * 1000;
   var etaTime = new Date(etaMs).toLocaleTimeString('es-CO', {timeZone:TZ, hour:'2-digit', minute:'2-digit', hour12:true});
   var zoneNames = selectedZones.map(function(k) {
@@ -606,7 +643,7 @@ async function markDelivery(num) {
     var newTotal = spentMins + returnMins;
     var etaMs = now + returnMins * 60 * 1000;
     var etaTime = new Date(etaMs).toLocaleTimeString('es-CO', {timeZone:TZ, hour:'2-digit', minute:'2-digit', hour12:true});
-    var data = Object.assign({}, current, {deliveredCount:newCount, allDelivered:true, totalMins:newTotal, etaTime:etaTime, ts:current.ts, timeEntregando:nowTime(), deliveryTimes:deliveryTimes});
+    var data = Object.assign({}, current, {deliveredCount:newCount, allDelivered:true, totalMins:returnMins, etaTime:etaTime, ts:now, timeEntregando:nowTime(), deliveryTimes:deliveryTimes});
     await setState(messengerName, data);
   } else {
     var data = Object.assign({}, current, {deliveredCount:newCount, deliveryTimes:deliveryTimes});
@@ -620,6 +657,25 @@ async function doTransition(newState) {
   var now = Date.now();
   var data = Object.assign({}, current, {state:newState, ts:now});
 
+  if (newState === 'recoger') {
+    // Pause: save how many seconds have elapsed so far
+    var elapsedSoFar = current.ts ? elapsed(current.ts) : 0;
+    data = Object.assign({}, data, {state:'recoger', pausedElapsed: elapsedSoFar, providerTime: nowTime()});
+    await addHistory(today(), messengerName, {state:'recoger', time:nowTime()});
+    await setState(messengerName, data);
+    renderMessenger();
+    return;
+  }
+  if (newState === 'en_ruta' && current.state === 'recoger') {
+    // Resume: adjust ts so elapsed time accounts for paused time
+    var pausedSecs = current.pausedElapsed || 0;
+    var resumedTs = now - (pausedSecs * 1000);
+    data = Object.assign({}, current, {state:'en_ruta', ts:resumedTs, pausedElapsed:null, resumeTime: nowTime()});
+    await addHistory(today(), messengerName, {state:'en_ruta', time:nowTime(), note:'Retomó ruta'});
+    await setState(messengerName, data);
+    renderMessenger();
+    return;
+  }
   if (newState === 'libre') {
     var dur = current.ts ? Math.round(elapsed(current.ts) / 60) : 0;
     await addHistory(today(), messengerName, {state:'libre', time:nowTime(), duration:dur});
@@ -630,22 +686,21 @@ async function doTransition(newState) {
     var lastZoneKey = current.lastZone || (current.zones ? current.zones[current.zones.length-1] : current.zone);
     var lastZoneObj = ZONES.find(function(z) { return z.key === lastZoneKey; }) || {returnMins:25};
     var returnMins = lastZoneObj.returnMins;
-    var spentMins = Math.round(elapsed(current.ts) / 60);
-    var newTotal = spentMins + returnMins;
+    // Reset ts to now so countdown is just the return trip from here
     var etaMs2 = now + returnMins * 60 * 1000;
     var etaTime2 = new Date(etaMs2).toLocaleTimeString('es-CO', {timeZone:TZ, hour:'2-digit', minute:'2-digit', hour12:true});
-    data = Object.assign({}, data, {totalMins:newTotal, etaTime:etaTime2, returnMinsCalc:returnMins});
+    data = Object.assign({}, data, {ts:now, totalMins:returnMins, etaTime:etaTime2, returnMinsCalc:returnMins});
   } else if (newState === 'devolviendo') {
     await addHistory(today(), messengerName, {state:'devolviendo', time:nowTime(), doms: current.doms, deliveredCount: current.deliveredCount||0});
     data = Object.assign({}, data, {timeDevolviendo: nowTime()});
     var lastZoneKey2 = current.lastZone || (current.zones ? current.zones[current.zones.length-1] : current.zone);
     var lastZoneObj2 = ZONES.find(function(z) { return z.key === lastZoneKey2; }) || {returnMins:25};
     var returnMins3 = lastZoneObj2.returnMins;
-    var spentMins3 = Math.round(elapsed(current.ts) / 60);
-    var newTotal3 = spentMins3 + returnMins3;
+    // KEY FIX: countdown starts fresh from NOW with only returnMins
+    // ts is reset to now, totalMins is just the return trip
     var etaMs4 = now + returnMins3 * 60 * 1000;
     var etaTime4 = new Date(etaMs4).toLocaleTimeString('es-CO', {timeZone:TZ, hour:'2-digit', minute:'2-digit', hour12:true});
-    data = Object.assign({}, data, {totalMins:newTotal3, etaTime:etaTime4, returnMinsCalc:returnMins3});
+    data = Object.assign({}, data, {ts:now, totalMins:returnMins3, etaTime:etaTime4, returnMinsCalc:returnMins3});
   }
   await setState(messengerName, data);
   renderMessenger();
@@ -749,6 +804,7 @@ async function renderAdmin() {
                 '<div class="mc-detail-row"><span class="mc-dl">Zona(s)</span><span class="mc-dv" style="font-size:10px">' + esc(zoneDisplay) + '</span></div>' +
                 '<div class="mc-detail-row"><span class="mc-dl">Salio</span><span class="mc-dv">' + (st.startTime||'-') + '</span></div>' +
                 (st.timeDevolviendo ? '<div class="mc-detail-row"><span class="mc-dl">Regresando desde</span><span class="mc-dv" style="color:var(--orange)">' + st.timeDevolviendo + '</span></div>' : '') +
+              (st.providerTime ? '<div class="mc-detail-row"><span class="mc-dl">En proveedor</span><span class="mc-dv" style="color:#a855f7">' + st.providerTime + (st.resumeTime ? ' → '+st.resumeTime : ' ⏳') + '</span></div>' : '') +
                 '<div class="mc-detail-row"><span class="mc-dl">ETA regreso</span><span class="mc-dv ' + valClass + '">' + (st.etaTime||'-') + '</span></div>' +
                 '<div class="mc-detail-row"><span class="mc-dl">Tiempo restante</span><span class="mc-dv ' + valClass + '" id="adm-cd-' + m + '" data-ts="' + (st.ts||0) + '" data-total="' + totalSecs + '">' + timeDisp + '</span></div>' +
                 delivRows +
