@@ -244,18 +244,19 @@ tr:hover td{background:rgba(0,212,255,0.02);}
 var TZ = 'America/Bogota';
 var MESSENGERS = ['JOTA','PRÍNCIPE','CRISTIAN','JAIME','YASSER'];
 var ZONES = [
-  {key:'z1',  name:'Enciso / Buenos Aires', mins:35, goMins:15, returnMins:15},
-  {key:'z2',  name:'Centro / San Juan',     mins:21, goMins:8,  returnMins:8},
-  {key:'z3',  name:'Cristo Rey',            mins:43, goMins:20, returnMins:18},
-  {key:'z4',  name:'Laureles',              mins:47, goMins:22, returnMins:20},
-  {key:'z5',  name:'Belén',                 mins:52, goMins:25, returnMins:22},
-  {key:'z6',  name:'Guayabal',              mins:39, goMins:18, returnMins:16},
-  {key:'z7',  name:'El Poblado',            mins:43, goMins:20, returnMins:18},
-  {key:'z8',  name:'Envigado',              mins:70, goMins:35, returnMins:30},
-  {key:'z9',  name:'Itagüí',               mins:61, goMins:30, returnMins:26},
-  {key:'z10', name:'La Estrella',           mins:88, goMins:45, returnMins:38},
-  {key:'z11', name:'Bello',                 mins:70, goMins:35, returnMins:30},
-  {key:'z12', name:'Castilla / Robledo',    mins:52, goMins:25, returnMins:22}
+  // Tiempos basados en historial real desde Cra 51 #41-42 (Metro Alpujarra)
+  {key:'z1',  name:'Centro / San Juan',     mins:30, goMins:15, returnMins:15},  // 455 registros reales
+  {key:'z2',  name:'Enciso / Buenos Aires', mins:25, goMins:15, returnMins:10},  // 4 registros
+  {key:'z3',  name:'Castilla / Robledo',    mins:25, goMins:15, returnMins:10},  // 9 registros
+  {key:'z4',  name:'El Poblado',            mins:30, goMins:15, returnMins:15},  // 2 registros
+  {key:'z5',  name:'Guayabal',              mins:45, goMins:25, returnMins:20},  // 20 registros reales
+  {key:'z6',  name:'Cristo Rey',            mins:40, goMins:22, returnMins:18},  // estimado
+  {key:'z7',  name:'Laureles',              mins:40, goMins:22, returnMins:18},  // 2 registros
+  {key:'z8',  name:'Belén',                 mins:50, goMins:28, returnMins:22},  // 6 registros reales
+  {key:'z9',  name:'Itagüí',               mins:55, goMins:30, returnMins:25},  // estimado conservador
+  {key:'z10', name:'Bello',                 mins:50, goMins:30, returnMins:20},  // 3 registros reales
+  {key:'z11', name:'Envigado',              mins:60, goMins:33, returnMins:27},  // estimado conservador
+  {key:'z12', name:'La Estrella',           mins:70, goMins:40, returnMins:30}   // 1 registro
 ];
 var STATE_CFG = {
   libre:      {label:'Libre',          sub:'Sin domicilios pendientes', ic:'ci-free',      icon:'ti-home-check',   badge:'sb-free',      card:'cs-free',     mc:'mc-free'},
