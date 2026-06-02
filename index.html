@@ -318,14 +318,52 @@ async function initFB(){
   }catch(e){console.error(e);return false;}
 }
 function gSt(n){return lg('mt_s_'+n,null);}
-function sSt(n,d){ls('mt_s_'+n,d);if(FB)fbSet(fbRef(fbDb,'mt_s/'+n),d).catch(function(){});}
+function sSt(n,d){
+  ls('mt_s_'+n,d);
+  if(FB){
+    // Strip photo arrays before sending to Firebase
+    var dFB=Object.assign({},d);
+    if(dFB.photos) dFB=Object.assign({},dFB,{photos:[]});
+    fbSet(fbRef(fbDb,'mt_s/'+n),dFB).catch(function(){});
+  }
+}
 function gH(date){return lg('mt_h_'+date,{});}
 function aH(date,name,entry){
   var h=gH(date);if(!h[name])h[name]=[];h[name].push(entry);
-  ls('mt_h_'+date,h);if(FB)fbSet(fbRef(fbDb,'mt_h/'+date),h).catch(function(){});
+  ls('mt_h_'+date,h);
+  // Don't send photo data to Firebase (too large) - send everything else
+  if(FB){
+    var hFB={};
+    Object.keys(h).forEach(function(m){
+      hFB[m]=h[m].map(function(e){
+        if(e.state==='foto'){
+          // Send entry without the base64 photo data
+          return {state:e.state,time:e.time,pedido:e.pedido,msn:e.msn,note:e.note||''};
+        }
+        return e;
+      });
+    });
+    fbSet(fbRef(fbDb,'mt_h/'+date),hFB).catch(function(){});
+  }
 }
 function gAll(){var o={};CREW.forEach(function(m){var v=lg('mt_s_'+m,null);if(v)o[m]=v;});return o;}
-function bgSync(){if(!FB)return;fbGet(fbRef(fbDb,'mt_s')).then(function(s){var v=s.val()||{};Object.keys(v).forEach(function(m){ls('mt_s_'+m,v[m]);});}).catch(function(){});}
+function bgSync(){
+  if(!FB)return;
+  fbGet(fbRef(fbDb,'mt_s')).then(function(s){
+    var v=s.val()||{};
+    Object.keys(v).forEach(function(m){
+      var local=lg('mt_s_'+m,null);
+      var remote=v[m];
+      if(remote){
+        // Preserve local photos when syncing from Firebase
+        if(local&&local.photos&&local.photos.length>0&&(!remote.photos||remote.photos.length===0)){
+          remote=Object.assign({},remote,{photos:local.photos});
+        }
+        ls('mt_s_'+m,remote);
+      }
+    });
+  }).catch(function(){});
+}
 setInterval(bgSync,30000);
 function getPwd(){return lg(Kp,DPWD)||DPWD;}
 function getCo(){return lg(Kc,'Repuestos Nissan Toyota')||'Repuestos Nissan Toyota';}
@@ -789,7 +827,32 @@ function rA(){
 
   } else if(ATAB==='history'){
     var hist=gH(VDATE),isT=VDATE===today();
-    if(FB){fbGet(fbRef(fbDb,'mt_h/'+VDATE)).then(function(s){var v=s.val();if(v)ls('mt_h_'+VDATE,v);}).catch(function(){});}
+    if(FB){
+      fbGet(fbRef(fbDb,'mt_h/'+VDATE)).then(function(s){
+        var remote=s.val();
+        if(remote){
+          var local=lg('mt_h_'+VDATE,{});
+          // Merge: keep local photo data, use remote for everything else
+          Object.keys(remote).forEach(function(m){
+            var remEntries=remote[m]||[];
+            var locEntries=local[m]||[];
+            // Match by time and state, restore photo if missing
+            remote[m]=remEntries.map(function(re){
+              if(re.state==='foto'&&!re.photo){
+                var match=locEntries.find(function(le){return le.state==='foto'&&le.time===re.time&&le.pedido===re.pedido;});
+                if(match&&match.photo) return Object.assign({},re,{photo:match.photo});
+              }
+              return re;
+            });
+          });
+          // Also keep local foto entries that aren't in remote
+          Object.keys(local).forEach(function(m){
+            if(!remote[m]) remote[m]=local[m];
+          });
+          ls('mt_h_'+VDATE,remote);
+        }
+      }).catch(function(){});
+    }
     var all=[];
     CREW.forEach(function(m){var ents=hist[m]||[];ents.forEach(function(e){all.push(Object.assign({},e,{msn:m}));});});
     if(HFILT.msn!=='all')all=all.filter(function(e){return e.msn===HFILT.msn;});
