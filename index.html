@@ -326,6 +326,28 @@ function aH(date,name,entry){
   if(FB)fbSet(fbRef(fbDb,'mt_h/'+date),h).catch(function(){});
 }
 function gAll(){var o={};CREW.forEach(function(m){var v=lg('mt_s_'+m,null);if(v)o[m]=v;});return o;}
+async function gAllFB(){
+  if(FB){
+    try{
+      var s=await fbGet(fbRef(fbDb,'mt_s'));
+      var v=s.val()||{};
+      // Update localStorage with Firebase data
+      Object.keys(v).forEach(function(m){ls('mt_s_'+m,v[m]);});
+      return v;
+    }catch(e){}
+  }
+  return gAll();
+}
+async function gHFB(date){
+  if(FB){
+    try{
+      var s=await fbGet(fbRef(fbDb,'mt_h/'+date));
+      var v=s.val();
+      if(v){ls('mt_h_'+date,v);return v;}
+    }catch(e){}
+  }
+  return gH(date);
+}
 function bgSync(){if(!FB)return;fbGet(fbRef(fbDb,'mt_s')).then(function(s){var v=s.val()||{};Object.keys(v).forEach(function(m){ls('mt_s_'+m,v[m]);});}).catch(function(){});}
 setInterval(bgSync,30000);
 function getPwd(){return lg(Kp,DPWD)||DPWD;}
@@ -737,12 +759,12 @@ function tickAll(){
   });
 }
 setInterval(tickAll,1000);
-setInterval(function(){if(VIEW==='a'&&ADMIN&&ATAB==='live'){bgSync();rA();}},20000);
+setInterval(function(){if(VIEW==='a'&&ADMIN&&ATAB==='live'){rA();}},20000);
 function selM(n){MSN=n;SCR='main';rM();}
 function chgM(){MSN='';SCR='main';rM();}
 
 // ── ADMIN ──────────────────────────────────────────────────────────────────────
-function rA(){
+async function rA(){
   var el=document.getElementById('va');
   if(!ADMIN){
     el.innerHTML='<div class="lgw fi"><div class="lg-ic"><i class="ti ti-shield-lock"></i></div>'+
@@ -759,8 +781,8 @@ function rA(){
   var body='';
 
   if(ATAB==='live'){
-    bgSync();
-    var states=gAll(),free=0,ruta=0,late=0;
+    // Show loading indicator briefly, then fetch from Firebase
+    var states=await gAllFB(),free=0,ruta=0,late=0;
     var MC={libre:'al',a_prov:'ap',esperando:'ae',en_ruta:'ar',entregando:'an',devolviendo:'ad'};
     var IC={libre:'ti-home-check',a_prov:'ti-building-store',esperando:'ti-hourglass',en_ruta:'ti-motorbike',entregando:'ti-package',devolviendo:'ti-arrow-back'};
     var LB={libre:'Libre',a_prov:'Al Proveedor',esperando:'Esperando',en_ruta:'En Ruta',entregando:'Entregando',devolviendo:'Devolviéndose'};
@@ -808,8 +830,7 @@ function rA(){
       '</div><div class="adm-cards fi">'+cards+'</div>';
 
   } else if(ATAB==='history'){
-    var hist=gH(VDATE),isT=VDATE===today();
-    if(FB){fbGet(fbRef(fbDb,'mt_h/'+VDATE)).then(function(s){var v=s.val();if(v)ls('mt_h_'+VDATE,v);}).catch(function(){});}
+    var hist=await gHFB(VDATE),isT=VDATE===today();
     var all=[];
     CREW.forEach(function(m){var ents=hist[m]||[];ents.forEach(function(e){all.push(Object.assign({},e,{msn:m}));});});
     if(HFILT.msn!=='all')all=all.filter(function(e){return e.msn===HFILT.msn;});
