@@ -47,8 +47,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background-image:linear
 .sel-wrap h2{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:.08em;color:var(--text);margin-bottom:4px;}
 .sel-wrap p{font-size:12px;color:var(--t3);margin-bottom:20px;}
 .msn-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;}
-.msn-btn{padding:14px 10px;border-radius:var(--rs);border:1.5px solid var(--border);background:var(--bg2);cursor:pointer;font-family:'Space Grotesk',sans-serif;transition:all .2s;text-align:center;-webkit-tap-highlight-color:transparent;}
-.msn-btn:active{border-color:var(--accent);background:var(--adim);}
+.msn-btn{padding:14px 10px;border-radius:var(--rs);border:1.5px solid var(--border);background:var(--bg2);cursor:pointer;font-family:'Space Grotesk',sans-serif;transition:all .2s;text-align:center;}
 .mb-av{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--a2));display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--bg);margin:0 auto 8px;}
 .mb-nm{font-size:13px;font-weight:600;color:var(--text);}
 .st-hdr{padding:16px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
@@ -104,7 +103,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background-image:linear
 .del-chip{display:flex;align-items:center;gap:7px;padding:8px 12px;border-radius:var(--rx);margin-bottom:6px;font-size:12px;font-weight:600;background:var(--gdim);border:1px solid rgba(0,255,136,.2);color:var(--green);}
 .del-all{background:var(--gdim);border:1px solid rgba(0,255,136,.2);color:var(--green);border-radius:var(--rx);padding:10px 13px;margin-bottom:8px;display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;}
 .act-btns{display:flex;flex-direction:column;gap:8px;}
-.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px;border:none;border-radius:var(--rx);font-size:14px;font-weight:700;font-family:'Space Grotesk',sans-serif;cursor:pointer;transition:all .2s;text-transform:uppercase;-webkit-tap-highlight-color:transparent;}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px;border:none;border-radius:var(--rx);font-size:14px;font-weight:700;font-family:'Space Grotesk',sans-serif;cursor:pointer;transition:all .2s;text-transform:uppercase;}
 .btn:active{transform:scale(.97);}
 .b-ru{background:linear-gradient(135deg,var(--accent),var(--a2));color:var(--bg);box-shadow:0 4px 20px rgba(0,212,255,.2);}
 .b-pv{background:linear-gradient(135deg,var(--purple),#7c3aed);color:#fff;}
@@ -126,7 +125,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background-image:linear
 .tog{padding:5px 12px;border-radius:99px;font-size:11px;font-weight:600;font-family:'Space Grotesk',sans-serif;cursor:pointer;border:1.5px solid var(--border);background:none;color:var(--t3);}
 .tog.on{background:var(--pdim);border-color:var(--purple);color:var(--purple);}
 .zg{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px;}
-.zc{padding:9px 11px;border-radius:var(--rx);border:1.5px solid var(--border);background:var(--bg);cursor:pointer;-webkit-tap-highlight-color:transparent;}
+.zc{padding:9px 11px;border-radius:var(--rx);border:1.5px solid var(--border);background:var(--bg);cursor:pointer;}
 .zc.sc{border-color:var(--accent);background:var(--adim);}
 .zc.sp{border-color:var(--purple);background:var(--pdim);}
 .zc-n{font-size:11px;font-weight:600;color:var(--text);}
@@ -209,6 +208,9 @@ tr:last-child td{border-bottom:none;}
 #phm img{max-width:100%;max-height:85vh;border-radius:var(--rs);}
 .phm-c{margin-top:14px;}
 .phm-btn{padding:10px 28px;border-radius:99px;background:rgba(255,255,255,.15);border:none;color:#fff;font-size:14px;font-family:'Space Grotesk',sans-serif;cursor:pointer;}
+.spin-wrap{text-align:center;padding:30px;color:var(--t3);font-size:12px;}
+.spin-wrap i{font-size:24px;display:block;margin-bottom:8px;animation:spin 1s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
 .err{font-size:11px;color:var(--red);min-height:16px;margin:5px 0;}
 .ok-msg{font-size:11px;color:var(--green);min-height:16px;margin:5px 0;}
 .mt8{margin-top:8px;}
@@ -248,10 +250,9 @@ tr:last-child td{border-bottom:none;}
   <div class="footer">
     <span id="stst">Almacenamiento local</span>
     <span style="width:3px;height:3px;border-radius:50%;background:var(--t3);display:inline-block"></span>
-    <span>MotoTrack v7.0</span>
+    <span>MotoTrack v8.0</span>
   </div>
 </div>
-
 <script>
 var TZ='America/Bogota';
 var CREW=['JOTA','PRÍNCIPE','CRISTIAN','JAIME','YASSER'];
@@ -282,7 +283,6 @@ var IZ={
   z14:{z1:38,z2:40,z3:42,z4:25,z5:48,z6:42,z7:42,z8:40,z9:43,z10:47,z11:52,z12:57,z13:12,z15:65},
   z15:{z1:55,z2:57,z3:58,z4:62,z5:50,z6:40,z7:30,z8:50,z9:52,z10:38,z11:28,z12:28,z13:62,z14:65}
 };
-
 function gz(k){return ZN.find(function(z){return z.k===k;});}
 function calcR(cz,doms){
   if(!cz||!cz.length)return{total:30,ret:20};
@@ -299,46 +299,88 @@ function calcPR(pz,cz,doms){
   return{total:p2c+bet+(doms||1)*5+lz.r,ret:lz.r};
 }
 
-// Storage
+// ─── STORAGE ──────────────────────────────────────────────────────────────────
 var Kp='mt_pwd',Kc='mt_co',Kf='mt_fb',DPWD='admin2025';
-var FB=false,fbDb,fbRef,fbGet,fbSet;
+var FB=false,fbDb,fbRef,fbGet,fbSet,fbPush;
+
 function lg(k,d){try{var v=localStorage.getItem(k);return v===null?d:JSON.parse(v);}catch(e){return d;}}
 function ls(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+
 async function initFB(){
   var cfg=lg(Kf,null);if(!cfg)return false;
   try{
     var am=await import('https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js');
     var dm=await import('https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js');
     var app=am.getApps().length?am.getApps()[0]:am.initializeApp(cfg);
-    fbDb=dm.getDatabase(app);fbRef=dm.ref;fbGet=dm.get;fbSet=dm.set;FB=true;
+    fbDb=dm.getDatabase(app);fbRef=dm.ref;fbGet=dm.get;fbSet=dm.set;fbPush=dm.push;
+    FB=true;
     document.getElementById('stlbl').textContent='Firebase';
     document.getElementById('stst').textContent='Firebase activo';
-    fbGet(fbRef(fbDb,'mt_s')).then(function(s){var v=s.val()||{};Object.keys(v).forEach(function(m){ls('mt_s_'+m,v[m]);});}).catch(function(){});
     return true;
   }catch(e){console.error(e);return false;}
 }
+
+// State: instant local + async firebase
 function gSt(n){return lg('mt_s_'+n,null);}
-function sSt(n,d){ls('mt_s_'+n,d);if(FB)fbSet(fbRef(fbDb,'mt_s/'+n),d).catch(function(){});}
+function sSt(n,d){
+  ls('mt_s_'+n,d);
+  if(FB)fbSet(fbRef(fbDb,'mt_s/'+n),d).catch(function(){});
+}
+
+// History: local + firebase (without photos - photos stored separately)
 function gH(date){return lg('mt_h_'+date,{});}
 function aH(date,name,entry){
-  var h=gH(date);if(!h[name])h[name]=[];h[name].push(entry);
+  var h=gH(date);
+  if(!h[name])h[name]=[];
+  h[name].push(entry);
   ls('mt_h_'+date,h);
   if(FB)fbSet(fbRef(fbDb,'mt_h/'+date),h).catch(function(){});
 }
-function gAll(){var o={};CREW.forEach(function(m){var v=lg('mt_s_'+m,null);if(v)o[m]=v;});return o;}
-async function gAllFB(){
+
+// Photos: stored at mt_photos/[photoId] - separate from history
+function savePhoto(b64,cb){
+  var id='p'+Date.now();
+  // Save locally
+  var lp=lg('mt_ph',{});
+  lp[id]=b64;
+  ls('mt_ph',lp);
+  // Save to Firebase separately (photo is small after compression)
+  if(FB){
+    fbSet(fbRef(fbDb,'mt_photos/'+id),b64)
+      .then(function(){cb(id);})
+      .catch(function(){cb(id);}); // return id even if FB fails
+  } else {
+    cb(id);
+  }
+}
+function getPhoto(id,cb){
+  var lp=lg('mt_ph',{});
+  if(lp[id]){cb(lp[id]);return;}
+  if(FB){
+    fbGet(fbRef(fbDb,'mt_photos/'+id))
+      .then(function(s){
+        var v=s.val();
+        if(v){var lp2=lg('mt_ph',{});lp2[id]=v;ls('mt_ph',lp2);cb(v);}
+        else cb(null);
+      }).catch(function(){cb(null);});
+  } else {cb(null);}
+}
+
+// Fetch all states from Firebase
+async function fetchAllStates(){
   if(FB){
     try{
       var s=await fbGet(fbRef(fbDb,'mt_s'));
       var v=s.val()||{};
-      // Update localStorage with Firebase data
       Object.keys(v).forEach(function(m){ls('mt_s_'+m,v[m]);});
       return v;
     }catch(e){}
   }
-  return gAll();
+  var o={};CREW.forEach(function(m){var v=lg('mt_s_'+m,null);if(v)o[m]=v;});
+  return o;
 }
-async function gHFB(date){
+// Fetch history from Firebase
+async function fetchHist(date){
   if(FB){
     try{
       var s=await fbGet(fbRef(fbDb,'mt_h/'+date));
@@ -348,12 +390,11 @@ async function gHFB(date){
   }
   return gH(date);
 }
-function bgSync(){if(!FB)return;fbGet(fbRef(fbDb,'mt_s')).then(function(s){var v=s.val()||{};Object.keys(v).forEach(function(m){ls('mt_s_'+m,v[m]);});}).catch(function(){});}
-setInterval(bgSync,30000);
+
 function getPwd(){return lg(Kp,DPWD)||DPWD;}
 function getCo(){return lg(Kc,'Repuestos Nissan Toyota')||'Repuestos Nissan Toyota';}
 
-// Helpers
+// ─── HELPERS ──────────────────────────────────────────────────────────────────
 function today(){return new Date().toLocaleDateString('en-CA',{timeZone:TZ});}
 function nowT(){return new Date().toLocaleTimeString('es-CO',{timeZone:TZ,hour:'2-digit',minute:'2-digit',hour12:true});}
 function fmtD(d){var p=d.split('-'),M=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];return parseInt(p[2])+' '+M[parseInt(p[1])-1]+' '+p[0];}
@@ -372,35 +413,43 @@ function tick(){
 }
 setInterval(tick,1000);tick();
 
-// Photo store - global array indexed safely
-// Compress image before storing (max 800px, quality 0.65 = ~50-80KB per photo)
-function compressImg(b64, callback){
+// ─── PHOTO MODAL ──────────────────────────────────────────────────────────────
+function openPh(src){document.getElementById('phm-img').src=src;document.getElementById('phm').classList.add('show');}
+function closePh(){document.getElementById('phm').classList.remove('show');}
+function showPhById(id){
+  document.getElementById('phm-img').src='';
+  document.getElementById('phm-img').alt='Cargando...';
+  document.getElementById('phm').classList.add('show');
+  getPhoto(id,function(b64){
+    if(b64){document.getElementById('phm-img').src=b64;document.getElementById('phm-img').alt='';}
+    else{closePh();alert('No se pudo cargar la foto.');}
+  });
+}
+
+// ─── IMAGE COMPRESSION ────────────────────────────────────────────────────────
+function compressImg(b64,cb){
   var img=new Image();
   img.onload=function(){
-    var maxW=800, maxH=800;
-    var w=img.width, h=img.height;
-    if(w>maxW){h=Math.round(h*maxW/w);w=maxW;}
-    if(h>maxH){w=Math.round(w*maxH/h);h=maxH;}
-    var canvas=document.createElement('canvas');
-    canvas.width=w;canvas.height=h;
-    var ctx=canvas.getContext('2d');
-    ctx.drawImage(img,0,0,w,h);
-    callback(canvas.toDataURL('image/jpeg',0.65));
+    var mw=800,mh=800,w=img.width,h=img.height;
+    if(w>mw){h=Math.round(h*mw/w);w=mw;}
+    if(h>mh){w=Math.round(w*mh/h);h=mh;}
+    var c=document.createElement('canvas');
+    c.width=w;c.height=h;
+    c.getContext('2d').drawImage(img,0,0,w,h);
+    cb(c.toDataURL('image/jpeg',0.65));
   };
   img.src=b64;
 }
-var PH=[];
-function phStore(b64){PH.push(b64);return PH.length-1;}
-function openPh(idx){document.getElementById('phm-img').src=PH[idx]||'';document.getElementById('phm').classList.add('show');}
-function closePh(){document.getElementById('phm').classList.remove('show');}
 
-// App state
+// ─── APP STATE ─────────────────────────────────────────────────────────────────
 var VIEW='m',MSN='',ADMIN=false,ATAB='live',VDATE='';
 var SCR='main'; // main | trip | midprov
 var TRIP={hasProv:false,pz:null,cz:[],doms:1,photos:[]};
-var MIDPZ=null; // mid-route provider zone
+var MIDPZ=null;
 var HFILT={msn:'all',hr:'all'};
 var CAM_CTX=null;
+// Trip form photos stored by index for safe onclick
+var FPHSTORE=[];
 
 function setV(v){
   VIEW=v;
@@ -411,7 +460,7 @@ function setV(v){
   if(v==='m')rM();else rA();
 }
 
-// ── MESSENGER ────────────────────────────────────────────────────────────────
+// ─── MESSENGER ────────────────────────────────────────────────────────────────
 function rM(){
   var el=document.getElementById('vm');
   if(!MSN){rSel(el);return;}
@@ -419,15 +468,12 @@ function rM(){
   if(SCR==='midprov'){rMidProv(el);return;}
   rSt(el);
 }
-
 function rSel(el){
   var g=CREW.map(function(m){
-    return '<button class="msn-btn" onclick="selM(\''+xe(m)+'\')">'+
-      '<div class="mb-av">'+ini(m)+'</div><div class="mb-nm">'+xe(m)+'</div></button>';
+    return '<button class="msn-btn" onclick="selM(\''+xe(m)+'\')"><div class="mb-av">'+ini(m)+'</div><div class="mb-nm">'+xe(m)+'</div></button>';
   }).join('');
   el.innerHTML='<div class="sel-wrap fi"><h2>Quién eres?</h2><p>Selecciona tu nombre</p><div class="msn-grid">'+g+'</div></div>';
 }
-
 function rSt(el){
   var st=gSt(MSN),stk=st?st.state:'libre';
   var SC={
@@ -444,19 +490,14 @@ function rSt(el){
   var e2=isA&&st&&st.ts?seElap(st.ts):0;
   var rem=tot?tot-e2:0,pct=tot?Math.min(100,Math.max(0,(e2/tot)*100)):0;
   var isL=isA&&tot&&rem<=-60,isW=isA&&tot&&rem>0&&rem<=120;
-
   var cdH='';
   if(isA&&st&&st.ts&&tot){
     var tc=isL?'late':isW?'warn':'',pc=isL?'plt':isW?'pwn':'pok';
-    cdH='<div class="cd-box" id="cdb" data-ts="'+st.ts+'" data-tot="'+tot+'">'+
-      '<div class="cd-top"><span class="cd-l">'+(rem<=0?'Tiempo excedido':'Tiempo restante')+'</span>'+
-      '<span class="cd-n '+tc+'" id="cdn">'+(rem<=0?'+'+fs(rem):fs(rem))+'</span></div>'+
-      '<div class="prog"><div class="pf '+pc+'" id="cdf" style="width:'+pct+'%"></div></div></div>';
+    cdH='<div class="cd-box" id="cdb" data-ts="'+st.ts+'" data-tot="'+tot+'"><div class="cd-top"><span class="cd-l">'+(rem<=0?'Tiempo excedido':'Tiempo restante')+'</span><span class="cd-n '+tc+'" id="cdn">'+(rem<=0?'+'+fs(rem):fs(rem))+'</span></div><div class="prog"><div class="pf '+pc+'" id="cdf" style="width:'+pct+'%"></div></div></div>';
   }
   var wH='';
   if(stk==='esperando'&&st&&st.wt){
-    wH='<div class="wait-box"><div class="wait-l">Esperando al proveedor</div>'+
-      '<div class="wait-n" id="wn" data-ts="'+st.wt+'">'+fw(seElap(st.wt))+'</div></div>';
+    wH='<div class="wait-box"><div class="wait-l">Esperando al proveedor</div><div class="wait-n" id="wn" data-ts="'+st.wt+'">'+fw(seElap(st.wt))+'</div></div>';
   }
   var riH='';
   if(st&&stk!=='libre'){
@@ -472,7 +513,6 @@ function rSt(el){
     if(st.etaT)rows+='<div class="ri-row"><span class="ri-l"><i class="ti ti-target" style="font-size:11px"></i> ETA regreso</span><span class="ri-v '+ec+'">'+st.etaT+'</span></div>';
     riH='<div class="ri-box">'+rows+'</div>';
   }
-
   var dH='',btns='';
   if(stk==='libre'){
     btns='<button class="btn b-ru" onclick="goTrip()"><i class="ti ti-motorbike"></i> Configurar y salir</button>';
@@ -490,8 +530,7 @@ function rSt(el){
       for(var i=0;i<dC;i++){var pt=(st.dT&&st.dT['p'+(i+1)])?(' — '+st.dT['p'+(i+1)]):'';chips+='<div class="del-chip"><i class="ti ti-circle-check" style="font-size:15px"></i> Pedido '+(i+1)+' entregado'+pt+'</div>';}
       var nx=dC+1,pend=tD-dC;
       dH=chips;
-      btns=
-        '<button class="btn b-en" onclick="mEnt('+nx+')"><i class="ti ti-package"></i> Entregar pedido '+nx+' de '+tD+'</button>'+
+      btns='<button class="btn b-en" onclick="mEnt('+nx+')"><i class="ti ti-package"></i> Entregar pedido '+nx+' de '+tD+'</button>'+
         (dC>0?'<div style="font-size:11px;color:var(--t3);text-align:center;margin-top:2px">Faltan '+pend+' pedido'+(pend>1?'s':'')+'</div>':'')+
         '<button class="btn b-cm mt8" onclick="tPhRoute('+nx+')"><i class="ti ti-camera"></i> Foto factura pedido '+nx+'</button>'+
         '<button class="btn b-pv mt8" onclick="goMidProv()"><i class="ti ti-building-store"></i> Parar en proveedor</button>';
@@ -505,18 +544,10 @@ function rSt(el){
     btns+='<button class="btn b-gh" onclick="mLibre()"><i class="ti ti-home-check"></i> Marcar como libre</button>';
   }
   var lbH=isL?'<div class="late-bn"><i class="ti ti-alert-triangle" style="font-size:16px;flex-shrink:0"></i>Llevas '+fs(rem)+' de retraso</div>':'';
-  el.innerHTML=
-    '<div class="st-hdr"><div class="st-l"><div class="st-av">'+ini(MSN)+'</div>'+
-    '<div><div class="st-nm">'+xe(MSN)+'</div><div class="st-dt">'+fmtD(today())+'</div></div></div>'+
-    '<button class="btn-chg" onclick="chgM()"><i class="ti ti-refresh" style="font-size:11px"></i> Cambiar</button></div>'+
-    '<div class="st-body fi"><div class="cur-st '+(isL?'cs-la':c.cs)+'">'+
-    '<div class="cs-left"><div class="cs-ic '+c.ic+'"><i class="ti '+c.icon+'"></i></div>'+
-    '<div><div class="cs-lbl">'+c.l+'</div><div class="cs-sub">'+c.s+'</div></div></div>'+
-    '<span class="sbadge '+c.sb+'">'+c.l.toUpperCase()+'</span></div>'+
-    riH+cdH+wH+dH+lbH+'<div class="act-btns">'+btns+'</div></div>';
+  el.innerHTML='<div class="st-hdr"><div class="st-l"><div class="st-av">'+ini(MSN)+'</div><div><div class="st-nm">'+xe(MSN)+'</div><div class="st-dt">'+fmtD(today())+'</div></div></div><button class="btn-chg" onclick="chgM()"><i class="ti ti-refresh" style="font-size:11px"></i> Cambiar</button></div><div class="st-body fi"><div class="cur-st '+(isL?'cs-la':c.cs)+'"><div class="cs-left"><div class="cs-ic '+c.ic+'"><i class="ti '+c.icon+'"></i></div><div><div class="cs-lbl">'+c.l+'</div><div class="cs-sub">'+c.s+'</div></div></div><span class="sbadge '+c.sb+'">'+c.l.toUpperCase()+'</span></div>'+riH+cdH+wH+dH+lbH+'<div class="act-btns">'+btns+'</div></div>';
 }
 
-// ── TRIP FORM ─────────────────────────────────────────────────────────────────
+// ─── TRIP FORM ─────────────────────────────────────────────────────────────────
 function rTrip(el){
   var pC=ZN.map(function(z){return '<div class="zc'+(TRIP.pz===z.k?' sp':'')+'" onclick="tPZ(\''+z.k+'\')"><div class="zc-n">'+xe(z.n)+'</div><div class="zc-t p">~'+z.g+' min</div></div>';}).join('');
   var cC=ZN.map(function(z){return '<div class="zc'+(TRIP.cz.indexOf(z.k)>=0?' sc':'')+'" onclick="tCZ(\''+z.k+'\')"><div class="zc-n">'+xe(z.n)+'</div><div class="zc-t">~'+z.g+' min</div></div>';}).join('');
@@ -529,61 +560,36 @@ function rTrip(el){
     else if(hp){var pzo2=gz(TRIP.pz)||{g:15,r:15};sumH='<span style="color:var(--purple)"><i class="ti ti-building-store" style="font-size:12px"></i> Solo prov: '+xe(pvN)+' — ~'+(pzo2.g+pzo2.r)+' min</span>';}
     else{var rr2=calcR(TRIP.cz,TRIP.doms);sumH='<span style="color:var(--green)"><i class="ti ti-check" style="font-size:12px"></i> '+xe(cN)+' — ~'+rr2.total+' min</span>';}
   }
-  // Photos - use fixed slots 1000+i
-  TRIP.photos.forEach(function(p,i){PH[1000+i]=p.b64;});
+  // Store form photos in FPHSTORE for safe onclick
+  FPHSTORE=TRIP.photos.map(function(p){return p.b64;});
   var phBody=TRIP.photos.length>0?
     '<div class="ph-grid">'+TRIP.photos.map(function(p,i){
-      return '<div class="ph-item"><img src="'+p.b64+'" onclick="openPh('+(1000+i)+')" alt="">'+
-        '<button class="ph-del" onclick="rmPh('+i+')">×</button>'+
-        '<div class="ph-lbl">Foto '+(i+1)+'</div></div>';
+      return '<div class="ph-item"><img src="'+p.b64+'" onclick="openPh(FPHSTORE['+i+'])" alt=""><button class="ph-del" onclick="rmPh('+i+')">×</button><div class="ph-lbl">Foto '+(i+1)+'</div></div>';
     }).join('')+'</div>':
     '<div style="font-size:12px;color:var(--t3);margin-bottom:10px;text-align:center">Toma fotos antes de salir</div>';
-
-  el.innerHTML=
-    '<div class="st-hdr"><div class="st-l"><div class="st-av">'+ini(MSN)+'</div>'+
-    '<div><div class="st-nm">'+xe(MSN)+'</div><div class="st-dt">Configurar salida</div></div></div>'+
-    '<button class="btn-chg" onclick="SCR=\'main\';rM()"><i class="ti ti-x" style="font-size:11px"></i> Cancelar</button></div>'+
+  el.innerHTML='<div class="st-hdr"><div class="st-l"><div class="st-av">'+ini(MSN)+'</div><div><div class="st-nm">'+xe(MSN)+'</div><div class="st-dt">Configurar salida</div></div></div><button class="btn-chg" onclick="SCR=\'main\';rM()"><i class="ti ti-x" style="font-size:11px"></i> Cancelar</button></div>'+
     '<div class="fw fi">'+
-    '<div class="sec'+(TRIP.hasProv?' on-p':'')+'"><div class="sec-hdr">'+
-      '<div class="sec-hl"><i class="ti ti-building-store" style="color:var(--purple)"></i> ¿Recoger en proveedor?</div>'+
-      '<button class="tog'+(TRIP.hasProv?' on':'')+'" onclick="togPv()">'+(TRIP.hasProv?'✓ Sí':'No')+'</button></div>'+
-      (TRIP.hasProv?'<span class="flbl" style="color:var(--purple)">Zona del proveedor</span><div class="zg">'+pC+'</div>':'')+
-    '</div>'+
-    '<div class="sec'+(TRIP.cz.length>0?' on-r':'')+'"><div class="sec-hdr">'+
-      '<div class="sec-hl"><i class="ti ti-motorbike" style="color:var(--accent)"></i> Zonas de clientes</div>'+
-      (TRIP.cz.length>0?'<span style="font-size:11px;color:var(--accent)">'+TRIP.cz.length+' zona'+(TRIP.cz.length>1?'s':'')+'</span>':'')+
-    '</div><span class="flbl">En orden de entrega</span><div class="zg">'+cC+'</div></div>'+
-    '<div class="sec"><div class="sec-hdr"><div class="sec-hl"><i class="ti ti-package" style="color:var(--yellow)"></i> Número de domicilios</div></div>'+
-    '<div class="dom-ctr"><button class="dom-b" onclick="chgD(-1)"><i class="ti ti-minus"></i></button>'+
-    '<div><div class="dom-n">'+TRIP.doms+'</div><div class="dom-l">domicilio'+(TRIP.doms>1?'s':'')+'</div></div>'+
-    '<button class="dom-b" onclick="chgD(1)"><i class="ti ti-plus"></i></button></div></div>'+
-    '<div class="sec'+(TRIP.photos.length>0?' on-ph':'')+'"><div class="sec-hdr">'+
-      '<div class="sec-hl"><i class="ti ti-camera" style="color:var(--blue)"></i> Fotos de facturas</div>'+
-      '<span style="font-size:11px;color:var(--t3)">'+TRIP.photos.length+' foto'+(TRIP.photos.length!==1?'s':'')+'</span></div>'+
-      phBody+'<button class="btn b-cm" onclick="tPhForm()"><i class="ti ti-camera-plus"></i> Agregar foto</button></div>'+
+    '<div class="sec'+(TRIP.hasProv?' on-p':'')+'"><div class="sec-hdr"><div class="sec-hl"><i class="ti ti-building-store" style="color:var(--purple)"></i> ¿Recoger en proveedor?</div><button class="tog'+(TRIP.hasProv?' on':'')+'" onclick="togPv()">'+(TRIP.hasProv?'✓ Sí':'No')+'</button></div>'+(TRIP.hasProv?'<span class="flbl" style="color:var(--purple)">Zona del proveedor</span><div class="zg">'+pC+'</div>':'')+'</div>'+
+    '<div class="sec'+(TRIP.cz.length>0?' on-r':'')+'"><div class="sec-hdr"><div class="sec-hl"><i class="ti ti-motorbike" style="color:var(--accent)"></i> Zonas de clientes</div>'+(TRIP.cz.length>0?'<span style="font-size:11px;color:var(--accent)">'+TRIP.cz.length+' zona'+(TRIP.cz.length>1?'s':'')+'</span>':'')+'</div><span class="flbl">En orden de entrega</span><div class="zg">'+cC+'</div></div>'+
+    '<div class="sec"><div class="sec-hdr"><div class="sec-hl"><i class="ti ti-package" style="color:var(--yellow)"></i> Número de domicilios</div></div><div class="dom-ctr"><button class="dom-b" onclick="chgD(-1)"><i class="ti ti-minus"></i></button><div><div class="dom-n">'+TRIP.doms+'</div><div class="dom-l">domicilio'+(TRIP.doms>1?'s':'')+'</div></div><button class="dom-b" onclick="chgD(1)"><i class="ti ti-plus"></i></button></div></div>'+
+    '<div class="sec'+(TRIP.photos.length>0?' on-ph':'')+'"><div class="sec-hdr"><div class="sec-hl"><i class="ti ti-camera" style="color:var(--blue)"></i> Fotos de facturas</div><span style="font-size:11px;color:var(--t3)">'+TRIP.photos.length+' foto'+(TRIP.photos.length!==1?'s':'')+'</span></div>'+phBody+'<button class="btn b-cm" onclick="tPhForm()"><i class="ti ti-camera-plus"></i> Agregar foto</button></div>'+
     '<div class="sum-box'+(hp||hc?' has':'')+'">'+sumH+'</div>'+
     '<div id="cferr" class="err"></div>'+
     '<button class="btn b-ru" onclick="confTrip()"><i class="ti ti-motorbike"></i> Confirmar y salir</button></div>';
 }
 
-// ── MID-ROUTE PROVIDER FORM ───────────────────────────────────────────────────
+// ─── MID-ROUTE PROVIDER ────────────────────────────────────────────────────────
 function rMidProv(el){
   var zC=ZN.map(function(z){return '<div class="zc'+(MIDPZ===z.k?' sp':'')+'" onclick="selMPZ(\''+z.k+'\')"><div class="zc-n">'+xe(z.n)+'</div><div class="zc-t p">~'+z.g+' min</div></div>';}).join('');
   var sumH=MIDPZ?'<span style="color:var(--purple)"><i class="ti ti-building-store" style="font-size:12px"></i> '+xe((gz(MIDPZ)||{}).n||'')+' — ~'+(gz(MIDPZ)||{g:15}).g+' min al proveedor</span>':'<span style="color:var(--t3)">Selecciona la zona del proveedor</span>';
-  el.innerHTML=
-    '<div class="st-hdr"><div class="st-l"><div class="st-av">'+ini(MSN)+'</div>'+
-    '<div><div class="st-nm">'+xe(MSN)+'</div><div class="st-dt">Parar en proveedor</div></div></div>'+
-    '<button class="btn-chg" onclick="SCR=\'main\';MIDPZ=null;rM()"><i class="ti ti-x" style="font-size:11px"></i> Cancelar</button></div>'+
-    '<div class="fw fi"><div class="sec on-p"><div class="sec-hdr">'+
-    '<div class="sec-hl"><i class="ti ti-building-store" style="color:var(--purple)"></i> ¿Dónde queda el proveedor?</div></div>'+
-    '<span class="flbl" style="color:var(--purple)">Zona del proveedor</span>'+
-    '<div class="zg">'+zC+'</div></div>'+
+  el.innerHTML='<div class="st-hdr"><div class="st-l"><div class="st-av">'+ini(MSN)+'</div><div><div class="st-nm">'+xe(MSN)+'</div><div class="st-dt">Parar en proveedor</div></div></div><button class="btn-chg" onclick="SCR=\'main\';MIDPZ=null;rM()"><i class="ti ti-x" style="font-size:11px"></i> Cancelar</button></div>'+
+    '<div class="fw fi"><div class="sec on-p"><div class="sec-hdr"><div class="sec-hl"><i class="ti ti-building-store" style="color:var(--purple)"></i> ¿Dónde queda el proveedor?</div></div><span class="flbl" style="color:var(--purple)">Zona del proveedor</span><div class="zg">'+zC+'</div></div>'+
     '<div class="sum-box'+(MIDPZ?' has':'')+'">'+sumH+'</div>'+
     '<div id="mperr" class="err"></div>'+
     '<button class="btn b-pv" onclick="confMidProv()"><i class="ti ti-building-store"></i> Ir al proveedor</button></div>';
 }
 
-// ── TRIP ACTIONS ───────────────────────────────────────────────────────────────
+// ─── TRIP ACTIONS ──────────────────────────────────────────────────────────────
 function goTrip(){TRIP={hasProv:false,pz:null,cz:[],doms:1,photos:[]};SCR='trip';rM();}
 function togPv(){TRIP.hasProv=!TRIP.hasProv;if(!TRIP.hasProv)TRIP.pz=null;rM();}
 function tPZ(k){TRIP.pz=(TRIP.pz===k)?null:k;rM();}
@@ -591,7 +597,7 @@ function tCZ(k){var i=TRIP.cz.indexOf(k);if(i>=0)TRIP.cz.splice(i,1);else TRIP.c
 function chgD(d){TRIP.doms=Math.max(1,Math.min(10,TRIP.doms+d));rM();}
 function rmPh(i){TRIP.photos.splice(i,1);rM();}
 function tPhForm(){CAM_CTX='form';document.getElementById('cam').click();}
-function tPhRoute(num){CAM_CTX='route:'+num;document.getElementById('cam').click();}
+function tPhRoute(num){CAM_CTX='r'+num;document.getElementById('cam').click();}
 function goMidProv(){MIDPZ=null;SCR='midprov';rM();}
 function selMPZ(k){MIDPZ=k;rM();}
 
@@ -611,10 +617,14 @@ function confTrip(){
     var rr2=calcR(TRIP.cz,TRIP.doms);
     data={state:'en_ruta',zones:TRIP.cz,lZ:TRIP.cz[TRIP.cz.length-1],zN:cN,doms:TRIP.doms,dC:0,allD:false,dT:{},tM:rr2.total,ts:now,sT:nowT(),etaT:etaS(rr2.total)};
   }
-  // Save pre-trip photos to history
+  // Save each pre-trip photo separately to Firebase
   var photos=TRIP.photos.slice();
   for(var pi=0;pi<photos.length;pi++){
-    aH(today(),MSN,{state:'foto',time:photos[pi].time||nowT(),pedido:pi+1,photo:photos[pi].b64,msn:MSN,note:'Pre-salida'});
+    (function(p,idx){
+      savePhoto(p.b64,function(pid){
+        aH(today(),MSN,{state:'foto',time:p.time||nowT(),pedido:idx+1,photoId:pid,msn:MSN,note:'Pre-salida'});
+      });
+    })(photos[pi],pi);
   }
   sSt(MSN,data);
   aH(today(),MSN,{state:data.state,time:nowT(),zone:pzo?pzo.n+(hc?' → '+cN:''):cN,doms:TRIP.doms,etaT:data.etaT});
@@ -626,10 +636,8 @@ function confMidProv(){
   if(!MIDPZ){var er=document.getElementById('mperr');if(er)er.textContent='Selecciona la zona del proveedor.';return;}
   var st=gSt(MSN)||{},now=Date.now();
   var pzo=gz(MIDPZ)||{g:15,r:15};
-  // Pause current route and go to provider
   var data=Object.assign({},st,{
     state:'a_prov',pvZ:MIDPZ,pvN:pzo.n,pvT:nowT(),ts:now,tM:pzo.g,etaT:etaS(pzo.g+pzo.r),
-    // Save paused route info
     pausedZones:st.zones||[],pausedLZ:st.lZ,pausedZN:st.zN,
     pausedDoms:st.doms,pausedDC:st.dC||0,pausedDT:st.dT||{},pausedAllD:st.allD||false
   });
@@ -638,61 +646,45 @@ function confMidProv(){
   MIDPZ=null;SCR='main';rM();
 }
 
-// ── STATE TRANSITIONS ──────────────────────────────────────────────────────────
+// ─── STATE TRANSITIONS ─────────────────────────────────────────────────────────
 function mEsp(){
   var st=gSt(MSN)||{};
   sSt(MSN,Object.assign({},st,{state:'esperando',wt:Date.now(),arPv:nowT()}));
   aH(today(),MSN,{state:'esperando',time:nowT(),zone:st.pvN||''});
   rM();
 }
-
 function mSalPv(){
   var st=gSt(MSN)||{},now=Date.now();
   var ws=st.wt?seElap(st.wt):0,wm=Math.round(ws/60);
-
   if(st.pausedZones&&st.pausedZones.length>0){
-    // Resume paused mid-route
     var lzo=gz(st.pausedLZ)||{r:20};
-    var remDoms=(st.pausedDoms||1)-(st.pausedDC||0);
-    var p2lz=(IZ[st.pvZ]&&IZ[st.pvZ][st.pausedLZ])?IZ[st.pvZ][st.pausedLZ]:lzo.r;
-    var newTot=p2lz+remDoms*5+lzo.r;
-    var data=Object.assign({},st,{
-      state:'en_ruta',zones:st.pausedZones,lZ:st.pausedLZ,zN:st.pausedZN,
-      doms:st.pausedDoms,dC:st.pausedDC,dT:st.pausedDT,allD:st.pausedAllD,
-      ts:now,tM:newTot,etaT:etaS(newTot),lfPv:nowT(),wtM:wm,
-      pausedZones:null,pausedLZ:null,pausedZN:null,pausedDoms:null,pausedDC:null,pausedDT:null,pausedAllD:null
-    });
+    var remD=(st.pausedDoms||1)-(st.pausedDC||0);
+    var p2l=(IZ[st.pvZ]&&IZ[st.pvZ][st.pausedLZ])?IZ[st.pvZ][st.pausedLZ]:lzo.r;
+    var nt=p2l+remD*5+lzo.r;
+    var data=Object.assign({},st,{state:'en_ruta',zones:st.pausedZones,lZ:st.pausedLZ,zN:st.pausedZN,doms:st.pausedDoms,dC:st.pausedDC,dT:st.pausedDT,allD:st.pausedAllD,ts:now,tM:nt,etaT:etaS(nt),lfPv:nowT(),wtM:wm,pausedZones:null,pausedLZ:null,pausedZN:null,pausedDoms:null,pausedDC:null,pausedDT:null,pausedAllD:null});
     sSt(MSN,data);
     aH(today(),MSN,{state:'en_ruta',time:nowT(),zone:st.pausedZN||'',note:'Retoma ruta. Prov: '+st.pvN+' ('+wm+' min)'});
   } else if(st.cz&&st.cz.length>0){
-    // Pre-trip provider → go to clients
     var rr=calcPR(st.pvZ,st.cz,st.doms||1);
     sSt(MSN,Object.assign({},st,{state:'en_ruta',zones:st.cz,lZ:st.cz[st.cz.length-1],zN:st.czN||'',ts:now,tM:rr.total,etaT:etaS(rr.total),lfPv:nowT(),wtM:wm}));
     aH(today(),MSN,{state:'en_ruta',time:nowT(),zone:st.czN||'',note:'Desde prov. Esperó '+wm+' min'});
   } else {
-    // Only provider, now return
     var pzo=gz(st.pvZ)||{r:20};
     sSt(MSN,Object.assign({},st,{state:'devolviendo',ts:now,tM:pzo.r,etaT:etaS(pzo.r),lfPv:nowT(),wtM:wm,tDv:nowT()}));
     aH(today(),MSN,{state:'devolviendo',time:nowT(),note:'Regresa tras proveedor'});
   }
   rM();
 }
-
 function mEnt(num){
   var st=gSt(MSN)||{},now=Date.now();
   var nc=(st.dC||0)+1,dT=st.dT||{};
   dT['p'+num]=nowT();
   var allD=nc>=(st.doms||1);
-  if(allD){
-    var lzo=gz(st.lZ)||{r:20};
-    sSt(MSN,Object.assign({},st,{dC:nc,allD:true,dT:dT,ts:now,tM:lzo.r,etaT:etaS(lzo.r)}));
-  } else {
-    sSt(MSN,Object.assign({},st,{dC:nc,dT:dT}));
-  }
+  if(allD){var lzo=gz(st.lZ)||{r:20};sSt(MSN,Object.assign({},st,{dC:nc,allD:true,dT:dT,ts:now,tM:lzo.r,etaT:etaS(lzo.r)}));}
+  else sSt(MSN,Object.assign({},st,{dC:nc,dT:dT}));
   aH(today(),MSN,{state:'entregando',time:nowT(),pedido:num,zone:st.zN||''});
   rM();
 }
-
 function mVolver(){
   var st=gSt(MSN)||{},now=Date.now();
   var lzo=gz(st.lZ)||{r:20};
@@ -700,7 +692,6 @@ function mVolver(){
   aH(today(),MSN,{state:'devolviendo',time:nowT()});
   rM();
 }
-
 function mLibre(){
   var st=gSt(MSN)||{};
   var dur=st.sT?Math.round(seElap(st.ts||Date.now())/60):0;
@@ -709,33 +700,32 @@ function mLibre(){
   rM();
 }
 
-// ── PHOTO HANDLER ──────────────────────────────────────────────────────────────
+// ─── CAMERA ────────────────────────────────────────────────────────────────────
 document.getElementById('cam').addEventListener('change',function(ev){
   var file=ev.target.files[0];
   if(!file){ev.target.value='';return;}
   var rd=new FileReader();
   rd.onload=function(e){
     var raw=e.target.result;
-    // Compress before saving
     compressImg(raw,function(b64){
       if(CAM_CTX==='form'){
         TRIP.photos.push({b64:b64,time:nowT()});
         CAM_CTX=null;ev.target.value='';rM();
       } else {
-        var num=parseInt((CAM_CTX||'route:0').split(':')[1])||0;
-        var st=gSt(MSN)||{};
-        var phs=st.photos||[];
-        phs.push({pedido:num,time:nowT(),b64:b64});
-        sSt(MSN,Object.assign({},st,{photos:phs}));
-        aH(today(),MSN,{state:'foto',time:nowT(),pedido:num,photo:b64,msn:MSN});
-        CAM_CTX=null;ev.target.value='';rM();
+        var num=parseInt((CAM_CTX||'r0').replace('r',''))||0;
+        // Save photo to separate Firebase path
+        savePhoto(b64,function(pid){
+          var st=gSt(MSN)||{};
+          aH(today(),MSN,{state:'foto',time:nowT(),pedido:num,photoId:pid,msn:MSN});
+          CAM_CTX=null;ev.target.value='';rM();
+        });
       }
     });
   };
   rd.readAsDataURL(file);
 });
 
-// ── COUNTDOWN TICK ─────────────────────────────────────────────────────────────
+// ─── TICK ──────────────────────────────────────────────────────────────────────
 function tickAll(){
   var b=document.getElementById('cdb');
   if(b){
@@ -759,30 +749,27 @@ function tickAll(){
   });
 }
 setInterval(tickAll,1000);
-setInterval(function(){if(VIEW==='a'&&ADMIN&&ATAB==='live'){rA();}},20000);
+setInterval(function(){if(VIEW==='a'&&ADMIN&&ATAB==='live')rA();},20000);
 function selM(n){MSN=n;SCR='main';rM();}
 function chgM(){MSN='';SCR='main';rM();}
 
-// ── ADMIN ──────────────────────────────────────────────────────────────────────
+// ─── ADMIN ─────────────────────────────────────────────────────────────────────
 async function rA(){
   var el=document.getElementById('va');
   if(!ADMIN){
-    el.innerHTML='<div class="lgw fi"><div class="lg-ic"><i class="ti ti-shield-lock"></i></div>'+
-      '<h2>Panel Admin</h2><p>Acceso exclusivo</p>'+
-      '<input type="password" id="pin" placeholder="Contraseña" style="text-align:center;letter-spacing:.12em;font-size:15px;margin-bottom:5px">'+
-      '<div class="err" id="perr"></div>'+
-      '<button class="btn b-ru mt8" onclick="doLog()"><i class="ti ti-login"></i> Ingresar</button></div>';
-    // attach enter key
+    el.innerHTML='<div class="lgw fi"><div class="lg-ic"><i class="ti ti-shield-lock"></i></div><h2>Panel Admin</h2><p>Acceso exclusivo</p><input type="password" id="pin" placeholder="Contraseña" style="text-align:center;letter-spacing:.12em;font-size:15px;margin-bottom:5px"><div class="err" id="perr"></div><button class="btn b-ru mt8" onclick="doLog()"><i class="ti ti-login"></i> Ingresar</button></div>';
     setTimeout(function(){var p=document.getElementById('pin');if(p)p.onkeydown=function(e){if(e.key==='Enter')doLog();};},50);
     return;
   }
   var tabs=[{k:'live',l:'En Vivo',ic:'ti-radio'},{k:'history',l:'Historial',ic:'ti-history'},{k:'settings',l:'Config',ic:'ti-settings'}];
   var bar='<div class="adm-tabs">'+tabs.map(function(t){return '<button class="atab'+(ATAB===t.k?' on':'')+'" onclick="setAT(\''+t.k+'\')"><i class="ti '+t.ic+'"></i>'+t.l+'</button>';}).join('')+'</div>';
+  // Show spinner while loading from Firebase
+  el.innerHTML=bar+'<div class="spin-wrap"><i class="ti ti-refresh"></i>Cargando...</div>';
   var body='';
 
   if(ATAB==='live'){
-    // Show loading indicator briefly, then fetch from Firebase
-    var states=await gAllFB(),free=0,ruta=0,late=0;
+    var states=await fetchAllStates();
+    var free=0,ruta=0,late=0;
     var MC={libre:'al',a_prov:'ap',esperando:'ae',en_ruta:'ar',entregando:'an',devolviendo:'ad'};
     var IC={libre:'ti-home-check',a_prov:'ti-building-store',esperando:'ti-hourglass',en_ruta:'ti-motorbike',entregando:'ti-package',devolviendo:'ti-arrow-back'};
     var LB={libre:'Libre',a_prov:'Al Proveedor',esperando:'Esperando',en_ruta:'En Ruta',entregando:'Entregando',devolviendo:'Devolviéndose'};
@@ -807,37 +794,20 @@ async function rA(){
           delR+='<div class="ac-row"><span class="ac-lbl">Pedido '+pi+'</span><span class="ac-val '+(pt?'cg':'')+'">'+(pt||'Pendiente')+'</span></div>';
         }
       }
-      return '<div class="acard '+mcC+'"><div class="ac-top"><div class="ac-l"><div class="ac-av">'+ini(m)+'</div>'+
-        '<div><div class="ac-nm">'+xe(m)+'</div><div class="ac-sb"><i class="ti '+(IC[stk]||'ti-motorbike')+'" style="font-size:10px"></i> '+(LB[stk]||stk)+(st&&st.doms&&stk!=='libre'?' · '+dms+' dom.':'')+'</div></div></div>'+
-        '<span class="sbadge '+(SB[stk]||'sb-li')+'" style="font-size:11px">'+(LB[stk]||stk).toUpperCase()+'</span></div>'+
-        (stk!=='libre'?'<div class="ac-body">'+
-          (tot?'<div class="ac-prog"><div class="ac-pf '+pfC+'" style="width:'+pct+'%"></div></div>':'')+
-          '<div class="ac-row"><span class="ac-lbl">Zona</span><span class="ac-val" style="font-size:10px">'+zD+'</span></div>'+
-          (st&&st.pvN?'<div class="ac-row"><span class="ac-lbl">Proveedor</span><span class="ac-val cp">'+xe(st.pvN)+'</span></div>':'')+
-          (st&&st.arPv?'<div class="ac-row"><span class="ac-lbl">En prov.</span><span class="ac-val cp">'+st.arPv+(st.lfPv?' → '+st.lfPv:' ⏳')+'</span></div>':'')+
-          (st&&st.wtM?'<div class="ac-row"><span class="ac-lbl">Esperó</span><span class="ac-val">'+st.wtM+' min</span></div>':'')+
-          (st&&st.sT?'<div class="ac-row"><span class="ac-lbl">Salió</span><span class="ac-val">'+st.sT+'</span></div>':'')+
-          (st&&st.tDv?'<div class="ac-row"><span class="ac-lbl">Regresando</span><span class="ac-val co">'+st.tDv+'</span></div>':'')+
-          (st&&st.etaT?'<div class="ac-row"><span class="ac-lbl">ETA</span><span class="ac-val '+(iL?'cr':iW?'co':'')+'">'+st.etaT+'</span></div>':'')+
-          (tot?'<div class="ac-row"><span class="ac-lbl">Tiempo</span><span class="ac-val '+(iL?'cr':iW?'co':'')+'" data-ats="'+(st.ts||0)+'" data-att="'+tot+'">'+tD+'</span></div>':'')+
-          delR+'</div>':'')+
+      return '<div class="acard '+mcC+'"><div class="ac-top"><div class="ac-l"><div class="ac-av">'+ini(m)+'</div><div><div class="ac-nm">'+xe(m)+'</div><div class="ac-sb"><i class="ti '+(IC[stk]||'ti-motorbike')+'" style="font-size:10px"></i> '+(LB[stk]||stk)+(st&&st.doms&&stk!=='libre'?' · '+dms+' dom.':'')+'</div></div></div><span class="sbadge '+(SB[stk]||'sb-li')+'" style="font-size:11px">'+(LB[stk]||stk).toUpperCase()+'</span></div>'+(stk!=='libre'?'<div class="ac-body">'+(tot?'<div class="ac-prog"><div class="ac-pf '+pfC+'" style="width:'+pct+'%"></div></div>':'')+'<div class="ac-row"><span class="ac-lbl">Zona</span><span class="ac-val" style="font-size:10px">'+zD+'</span></div>'+(st&&st.pvN?'<div class="ac-row"><span class="ac-lbl">Proveedor</span><span class="ac-val cp">'+xe(st.pvN)+'</span></div>':'')+(st&&st.arPv?'<div class="ac-row"><span class="ac-lbl">En prov.</span><span class="ac-val cp">'+st.arPv+(st.lfPv?' → '+st.lfPv:' ⏳')+'</span></div>':'')+(st&&st.wtM?'<div class="ac-row"><span class="ac-lbl">Esperó</span><span class="ac-val">'+st.wtM+' min</span></div>':'')+(st&&st.sT?'<div class="ac-row"><span class="ac-lbl">Salió</span><span class="ac-val">'+st.sT+'</span></div>':'')+(st&&st.tDv?'<div class="ac-row"><span class="ac-lbl">Regresando</span><span class="ac-val co">'+st.tDv+'</span></div>':'')+(st&&st.etaT?'<div class="ac-row"><span class="ac-lbl">ETA</span><span class="ac-val '+(iL?'cr':iW?'co':'')+'">'+st.etaT+'</span></div>':'')+(tot?'<div class="ac-row"><span class="ac-lbl">Tiempo</span><span class="ac-val '+(iL?'cr':iW?'co':'')+'" data-ats="'+(st.ts||0)+'" data-att="'+tot+'">'+tD+'</span></div>':'')+delR+'</div>':'')+
         '</div>';
     }).join('');
-    body='<div class="mg">'+
-      '<div class="metric"><div class="mn" style="color:var(--green)">'+free+'</div><div class="ml">Libres</div></div>'+
-      '<div class="metric"><div class="mn" style="color:var(--accent)">'+ruta+'</div><div class="ml">En Ruta</div></div>'+
-      '<div class="metric"><div class="mn" style="color:var(--red)">'+late+'</div><div class="ml">Atrasados</div></div>'+
-      '</div><div class="adm-cards fi">'+cards+'</div>';
+    body='<div class="mg"><div class="metric"><div class="mn" style="color:var(--green)">'+free+'</div><div class="ml">Libres</div></div><div class="metric"><div class="mn" style="color:var(--accent)">'+ruta+'</div><div class="ml">En Ruta</div></div><div class="metric"><div class="mn" style="color:var(--red)">'+late+'</div><div class="ml">Atrasados</div></div></div><div class="adm-cards fi">'+cards+'</div>';
 
   } else if(ATAB==='history'){
-    var hist=await gHFB(VDATE),isT=VDATE===today();
+    var hist=await fetchHist(VDATE),isT=VDATE===today();
     var all=[];
     CREW.forEach(function(m){var ents=hist[m]||[];ents.forEach(function(e){all.push(Object.assign({},e,{msn:m}));});});
     if(HFILT.msn!=='all')all=all.filter(function(e){return e.msn===HFILT.msn;});
     if(HFILT.hr!=='all'){
       all=all.filter(function(e){
         if(!e.time)return false;
-        var parts=e.time.split(' '),hm=parts[0].split(':'),ap=parts[1]||'';
+        var pts=e.time.split(' '),hm=pts[0].split(':'),ap=pts[1]||'';
         var h=parseInt(hm[0]),h24=(ap==='PM'&&h!==12)?h+12:(ap==='AM'&&h===12?0:h);
         if(HFILT.hr==='mo')return h24>=6&&h24<12;
         if(HFILT.hr==='af')return h24>=12&&h24<18;
@@ -845,8 +815,6 @@ async function rA(){
         return true;
       });
     }
-    // Store all photos in PH array starting at index 3000
-    var phIdx=3000;
     var rows=all.map(function(e){
       var dur=e.duration?(e.duration+' min'):'-';
       var dc=e.duration&&e.duration>50?'clt':e.duration&&e.duration>35?'cwn':'cok';
@@ -854,56 +822,31 @@ async function rA(){
       var extra;
       if(e.state==='libre'){
         extra='<span class="chip '+dc+'">'+dur+'</span>';
-      } else if(e.state==='foto'&&e.photo){
-        var idx=phIdx;
-        PH[idx]=e.photo;
-        phIdx++;
-        extra='<button class="ph-btn" onclick="openPh('+idx+')"><i class="ti ti-photo" style="font-size:11px"></i> Ver foto</button>';
+      } else if(e.state==='foto'&&e.photoId){
+        // Photo stored separately - use photoId
+        var pid=xe(e.photoId);
+        extra='<button class="ph-btn" onclick="showPhById(\''+pid+'\')"><i class="ti ti-photo" style="font-size:11px"></i> Ver foto</button>';
       } else {
         extra='-';
       }
-      return '<tr><td><strong>'+xe(e.msn||'-')+'</strong></td>'+
-        '<td><span class="chip cok">'+xe(stL)+'</span></td>'+
-        '<td>'+(e.time||'-')+'</td>'+
-        '<td style="font-size:10px">'+xe((e.zone||e.note||'').substring(0,25))+'</td>'+
-        '<td>'+extra+'</td></tr>';
+      return '<tr><td><strong>'+xe(e.msn||'-')+'</strong></td><td><span class="chip cok">'+xe(stL)+'</span></td><td>'+(e.time||'-')+'</td><td style="font-size:10px">'+xe((e.zone||e.note||'').substring(0,25))+'</td><td>'+extra+'</td></tr>';
     });
     var mOpts=CREW.map(function(m){return '<option value="'+m+'"'+(HFILT.msn===m?' selected':'')+'>'+xe(m)+'</option>';}).join('');
-    body='<div class="hw fi"><div class="dnav">'+
-      '<button class="db" onclick="navD(-1)"><i class="ti ti-chevron-left"></i></button>'+
-      '<div class="dl">'+fmtD(VDATE)+(isT?'<span class="tday">HOY</span>':'')+'</div>'+
-      '<button class="db" onclick="navD(1)" '+(isT?'disabled':'')+'>'+
-        '<i class="ti ti-chevron-right"></i></button></div>'+
-      '<div class="fr">'+
-        '<select onchange="HFILT.msn=this.value;rA()"><option value="all"'+(HFILT.msn==='all'?' selected':'')+'>Todos</option>'+mOpts+'</select>'+
-        '<select onchange="HFILT.hr=this.value;rA()">'+
-          '<option value="all"'+(HFILT.hr==='all'?' selected':'')+'>Todas las horas</option>'+
-          '<option value="mo"'+(HFILT.hr==='mo'?' selected':'')+'>Mañana 6-12</option>'+
-          '<option value="af"'+(HFILT.hr==='af'?' selected':'')+'>Tarde 12-18</option>'+
-          '<option value="ev"'+(HFILT.hr==='ev'?' selected':'')+'>Noche 18+</option>'+
-        '</select></div>'+
-      '<div class="htbl"><table>'+
-        '<thead><tr><th>Mensajero</th><th>Estado</th><th>Hora</th><th>Zona</th><th>Dur./Foto</th></tr></thead>'+
-        '<tbody>'+(rows.length?rows.join(''):'<tr><td colspan="5" style="text-align:center;color:var(--t3);padding:20px">Sin registros</td></tr>')+'</tbody>'+
-      '</table></div></div>';
+    body='<div class="hw fi"><div class="dnav"><button class="db" onclick="navD(-1)"><i class="ti ti-chevron-left"></i></button><div class="dl">'+fmtD(VDATE)+(isT?'<span class="tday">HOY</span>':'')+'</div><button class="db" onclick="navD(1)" '+(isT?'disabled':'')+'>'+
+      '<i class="ti ti-chevron-right"></i></button></div>'+
+      '<div class="fr"><select onchange="HFILT.msn=this.value;rA()"><option value="all"'+(HFILT.msn==='all'?' selected':'')+'>Todos</option>'+mOpts+'</select>'+
+      '<select onchange="HFILT.hr=this.value;rA()"><option value="all"'+(HFILT.hr==='all'?' selected':'')+'>Todas las horas</option><option value="mo"'+(HFILT.hr==='mo'?' selected':'')+'>Mañana 6-12</option><option value="af"'+(HFILT.hr==='af'?' selected':'')+'>Tarde 12-18</option><option value="ev"'+(HFILT.hr==='ev'?' selected':'')+'>Noche 18+</option></select></div>'+
+      '<div class="htbl"><table><thead><tr><th>Mensajero</th><th>Estado</th><th>Hora</th><th>Zona</th><th>Dur./Foto</th></tr></thead>'+
+      '<tbody>'+(rows.length?rows.join(''):'<tr><td colspan="5" style="text-align:center;color:var(--t3);padding:20px">Sin registros</td></tr>')+'</tbody></table></div></div>';
 
   } else {
     var hasFb=!!lg(Kf,null);
-    var fbH=hasFb?
-      '<div style="margin-bottom:8px"><span class="cob"><i class="ti ti-check" style="font-size:12px"></i> Firebase conectado</span></div>'+
-      '<textarea id="fbt" style="height:70px;font-size:10px;resize:vertical">'+xe(JSON.stringify(lg(Kf,{}),null,2))+'</textarea>':
+    var fbH=hasFb?'<div style="margin-bottom:8px"><span class="cob"><i class="ti ti-check" style="font-size:12px"></i> Firebase conectado</span></div><textarea id="fbt" style="height:70px;font-size:10px;resize:vertical">'+xe(JSON.stringify(lg(Kf,{}),null,2))+'</textarea>':
       '<div class="setup-b">Conecta Firebase para sincronizar entre dispositivos.<br>1. <a href="https://console.firebase.google.com" target="_blank">console.firebase.google.com</a><br>2. Activa <code>Realtime Database</code><br>3. Pega el JSON</div>'+
       '<textarea id="fbt" placeholder="{&quot;apiKey&quot;:&quot;...&quot;}" style="height:70px;font-size:10px;resize:vertical"></textarea>';
-    body='<div class="sw fi">'+
-      '<div class="sblk"><h3><i class="ti ti-building"></i> Empresa</h3>'+
-        '<div class="ir"><input type="text" id="cmp" value="'+xe(getCo())+'"><button class="bic" onclick="saveCo()"><i class="ti ti-check"></i></button></div></div>'+
-      '<div class="sblk"><h3><i class="ti ti-lock"></i> Contraseña</h3>'+
-        '<input type="password" id="np1" placeholder="Nueva contraseña" style="margin-bottom:6px">'+
-        '<input type="password" id="np2" placeholder="Confirmar">'+
-        '<div id="pmsg" class="ok-msg"></div>'+
-        '<button class="btn b-ru mt8" onclick="chgP()"><i class="ti ti-lock-check"></i> Guardar</button></div>'+
-      '<div class="sblk"><h3><i class="ti ti-database"></i> Firebase</h3>'+fbH+
-        '<button class="btn b-gh mt8" onclick="saveFb()"><i class="ti ti-plug"></i> Conectar</button></div>'+
+    body='<div class="sw fi"><div class="sblk"><h3><i class="ti ti-building"></i> Empresa</h3><div class="ir"><input type="text" id="cmp" value="'+xe(getCo())+'"><button class="bic" onclick="saveCo()"><i class="ti ti-check"></i></button></div></div>'+
+      '<div class="sblk"><h3><i class="ti ti-lock"></i> Contraseña</h3><input type="password" id="np1" placeholder="Nueva contraseña" style="margin-bottom:6px"><input type="password" id="np2" placeholder="Confirmar"><div id="pmsg" class="ok-msg"></div><button class="btn b-ru mt8" onclick="chgP()"><i class="ti ti-lock-check"></i> Guardar</button></div>'+
+      '<div class="sblk"><h3><i class="ti ti-database"></i> Firebase</h3>'+fbH+'<button class="btn b-gh mt8" onclick="saveFb()"><i class="ti ti-plug"></i> Conectar</button></div>'+
       '<button class="btn b-gh" onclick="doOut()"><i class="ti ti-logout"></i> Cerrar sesión</button></div>';
   }
   el.innerHTML=bar+body;
