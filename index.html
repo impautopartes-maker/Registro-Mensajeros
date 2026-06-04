@@ -65,6 +65,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background-image:linear
 .cs-en{border-color:rgba(255,215,0,.3);background:var(--ydim);}
 .cs-dv{border-color:rgba(255,140,0,.3);background:var(--odim);}
 .cs-la{border-color:rgba(255,56,96,.4);background:var(--rdim);}
+.cs-of{border-color:rgba(61,90,112,.4);background:rgba(61,90,112,.08);}
 @keyframes ga{0%,100%{box-shadow:0 0 0 0 rgba(0,212,255,.1)}50%{box-shadow:0 0 16px 3px rgba(0,212,255,.15)}}
 @keyframes gp{0%,100%{box-shadow:0 0 0 0 rgba(168,85,247,.1)}50%{box-shadow:0 0 16px 3px rgba(168,85,247,.15)}}
 .cs-left{display:flex;align-items:center;gap:10px;}
@@ -75,6 +76,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background-image:linear
 .icr{background:var(--adim);color:var(--accent);}
 .icn{background:var(--ydim);color:var(--yellow);}
 .icd{background:var(--odim);color:var(--orange);}
+.icof{background:rgba(61,90,112,.15);color:var(--t3);}
 .cs-lbl{font-size:16px;font-weight:700;color:var(--text);}
 .cs-sub{font-size:11px;color:var(--t3);margin-top:2px;}
 .sbadge{font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:.1em;padding:5px 12px;border-radius:99px;}
@@ -83,6 +85,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background-image:linear
 .sb-ru{background:rgba(0,212,255,.12);color:var(--accent);border:1px solid rgba(0,212,255,.2);}
 .sb-en{background:rgba(255,215,0,.12);color:var(--yellow);border:1px solid rgba(255,215,0,.2);}
 .sb-dv{background:rgba(255,140,0,.12);color:var(--orange);border:1px solid rgba(255,140,0,.2);}
+.sb-of{background:rgba(61,90,112,.15);color:var(--t3);border:1px solid rgba(61,90,112,.3);}
 .ri-box{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rs);padding:12px 14px;margin-bottom:12px;}
 .ri-row{display:flex;align-items:flex-start;justify-content:space-between;padding:5px 0;gap:8px;}
 .ri-row:not(:last-child){border-bottom:1px solid var(--border);}
@@ -113,6 +116,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background-image:linear
 .b-li{background:linear-gradient(135deg,var(--green),#00cc66);color:var(--bg);}
 .b-cm{background:linear-gradient(135deg,var(--blue),#0284c7);color:#fff;}
 .b-gh{background:var(--card2);color:var(--t2);border:1px solid var(--border);}
+.b-of{background:rgba(61,90,112,.2);color:var(--t2);border:1px solid rgba(61,90,112,.4);}
 .late-bn{background:var(--rdim);border:1px solid rgba(255,56,96,.3);border-radius:var(--rx);padding:10px 13px;margin-bottom:10px;display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;color:var(--red);}
 .fw{padding:16px 18px;}
 .flbl{font-size:11px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;display:block;}
@@ -154,6 +158,7 @@ input[type="file"]{display:none;}
 .adm-cards{padding:12px 14px;display:flex;flex-direction:column;gap:8px;}
 .acard{border-radius:var(--rs);border:1.5px solid var(--border);background:var(--bg2);overflow:hidden;}
 .acard.al{border-color:rgba(0,255,136,.2);}
+.acard.ao{border-color:rgba(61,90,112,.3);opacity:.7;}
 .acard.ar{border-color:rgba(0,212,255,.25);animation:ga 2.5s ease-in-out infinite;}
 .acard.ap,.acard.ae{border-color:rgba(168,85,247,.3);}
 .acard.an{border-color:rgba(255,215,0,.2);}
@@ -327,14 +332,18 @@ function sSt(n,d){
   if(FB)fbSet(fbRef(fbDb,'mt_s/'+n),d).catch(function(){});
 }
 
-// History: local + firebase (without photos - photos stored separately)
+// History: local + firebase (each entry pushed independently - no overwrite conflicts)
 function gH(date){return lg('mt_h_'+date,{});}
 function aH(date,name,entry){
+  // Save locally (instant)
   var h=gH(date);
   if(!h[name])h[name]=[];
   h[name].push(entry);
   ls('mt_h_'+date,h);
-  if(FB)fbSet(fbRef(fbDb,'mt_h/'+date),h).catch(function(){});
+  // Push to Firebase as independent entry (never overwrites others)
+  if(FB){
+    fbPush(fbRef(fbDb,'mt_h/'+date+'/'+name),entry).catch(function(){});
+  }
 }
 
 // Photos: stored at mt_photos/[photoId] - separate from history
@@ -379,13 +388,32 @@ async function fetchAllStates(){
   var o={};CREW.forEach(function(m){var v=lg('mt_s_'+m,null);if(v)o[m]=v;});
   return o;
 }
-// Fetch history from Firebase
+// Fetch history from Firebase - reads push entries and rebuilds local structure
 async function fetchHist(date){
   if(FB){
     try{
       var s=await fbGet(fbRef(fbDb,'mt_h/'+date));
       var v=s.val();
-      if(v){ls('mt_h_'+date,v);return v;}
+      if(v){
+        // Convert from push structure {msn: {push_id: entry}} to {msn: [entry, entry]}
+        var rebuilt={};
+        Object.keys(v).forEach(function(msnKey){
+          var msnData=v[msnKey];
+          if(msnData && typeof msnData==='object'){
+            rebuilt[msnKey]=[];
+            Object.keys(msnData).forEach(function(pushId){
+              var entry=msnData[pushId];
+              if(entry) rebuilt[msnKey].push(entry);
+            });
+            // Sort by time if possible
+            rebuilt[msnKey].sort(function(a,b){
+              return (a.time||'').localeCompare(b.time||'');
+            });
+          }
+        });
+        ls('mt_h_'+date,rebuilt);
+        return rebuilt;
+      }
     }catch(e){}
   }
   return gH(date);
@@ -477,6 +505,7 @@ function rSel(el){
 function rSt(el){
   var st=gSt(MSN),stk=st?st.state:'libre';
   var SC={
+    offline:{l:'No disponible',s:'Fuera de turno / Almuerzo',ic:'icof',icon:'ti-moon',cs:'cs-of',sb:'sb-of'},
     libre:{l:'Libre',s:'Sin domicilios pendientes',ic:'icl',icon:'ti-home-check',cs:'cs-li',sb:'sb-li'},
     a_prov:{l:'Al Proveedor',s:'En camino a recoger repuesto',ic:'icp',icon:'ti-building-store',cs:'cs-pv',sb:'sb-pv'},
     esperando:{l:'Esperando',s:'Proveedor despachando',ic:'ice',icon:'ti-hourglass',cs:'cs-ep',sb:'sb-ep'},
@@ -514,8 +543,11 @@ function rSt(el){
     riH='<div class="ri-box">'+rows+'</div>';
   }
   var dH='',btns='';
-  if(stk==='libre'){
-    btns='<button class="btn b-ru" onclick="goTrip()"><i class="ti ti-motorbike"></i> Configurar y salir</button>';
+  if(stk==='offline'){
+    btns='<button class="btn b-li" onclick="mOnline()"><i class="ti ti-sun"></i> Estoy disponible</button>';
+  } else if(stk==='libre'){
+    btns='<button class="btn b-ru" onclick="goTrip()"><i class="ti ti-motorbike"></i> Configurar y salir</button>'+
+      '<button class="btn b-of" onclick="mOffline()"><i class="ti ti-moon"></i> No disponible / Almuerzo</button>';
   } else if(stk==='a_prov'){
     btns='<button class="btn b-ep" onclick="mEsp()"><i class="ti ti-hourglass"></i> Llegué — Esperando despacho</button>';
   } else if(stk==='esperando'){
@@ -692,6 +724,16 @@ function mVolver(){
   aH(today(),MSN,{state:'devolviendo',time:nowT()});
   rM();
 }
+function mOffline(){
+  sSt(MSN,{state:'offline',ts:Date.now()});
+  aH(today(),MSN,{state:'offline',time:nowT()});
+  rM();
+}
+function mOnline(){
+  sSt(MSN,{state:'libre',ts:Date.now()});
+  aH(today(),MSN,{state:'online',time:nowT()});
+  rM();
+}
 function mLibre(){
   var st=gSt(MSN)||{};
   var dur=st.sT?Math.round(seElap(st.ts||Date.now())/60):0;
@@ -770,10 +812,10 @@ async function rA(){
   if(ATAB==='live'){
     var states=await fetchAllStates();
     var free=0,ruta=0,late=0;
-    var MC={libre:'al',a_prov:'ap',esperando:'ae',en_ruta:'ar',entregando:'an',devolviendo:'ad'};
-    var IC={libre:'ti-home-check',a_prov:'ti-building-store',esperando:'ti-hourglass',en_ruta:'ti-motorbike',entregando:'ti-package',devolviendo:'ti-arrow-back'};
-    var LB={libre:'Libre',a_prov:'Al Proveedor',esperando:'Esperando',en_ruta:'En Ruta',entregando:'Entregando',devolviendo:'Devolviéndose'};
-    var SB={libre:'sb-li',a_prov:'sb-pv',esperando:'sb-ep',en_ruta:'sb-ru',entregando:'sb-en',devolviendo:'sb-dv'};
+    var MC={offline:'ao',libre:'al',a_prov:'ap',esperando:'ae',en_ruta:'ar',entregando:'an',devolviendo:'ad'};
+    var IC={offline:'ti-moon',libre:'ti-home-check',a_prov:'ti-building-store',esperando:'ti-hourglass',en_ruta:'ti-motorbike',entregando:'ti-package',devolviendo:'ti-arrow-back'};
+    var LB={offline:'No disponible',libre:'Libre',a_prov:'Al Proveedor',esperando:'Esperando',en_ruta:'En Ruta',entregando:'Entregando',devolviendo:'Devolviéndose'};
+    var SB={offline:'sb-of',libre:'sb-li',a_prov:'sb-pv',esperando:'sb-ep',en_ruta:'sb-ru',entregando:'sb-en',devolviendo:'sb-dv'};
     var cards=CREW.map(function(m){
       var st=states[m],stk=st?st.state:'libre';
       var isA=stk==='en_ruta'||stk==='entregando'||stk==='devolviendo'||stk==='a_prov';
@@ -785,7 +827,7 @@ async function rA(){
       var tD=tot?(r<=0?'+'+fs(r):fs(r)):'-';
       var zD=st&&(st.zN||st.czN||st.pvN)?xe(st.zN||st.czN||st.pvN):'-';
       var dms=st&&st.doms?((st.dC||0)+'/'+st.doms):'-';
-      if(stk==='libre')free++;else if(stk==='en_ruta')ruta++;
+      if(stk==='libre'||stk==='offline')free++;else if(stk==='en_ruta')ruta++;
       if(iL)late++;
       var delR='';
       if(st&&st.doms&&st.doms>1){
