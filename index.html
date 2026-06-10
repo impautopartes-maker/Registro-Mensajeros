@@ -269,7 +269,9 @@ var ZN=[
   {k:'z9',n:'Laureles',g:22,r:18},{k:'z10',n:'Belén',g:28,r:22},
   {k:'z11',n:'Itagüí',g:30,r:25},{k:'z12',n:'Envigado',g:33,r:27},
   {k:'z13',n:'Bello',g:30,r:20},{k:'z14',n:'Playarica',g:35,r:28},
-  {k:'z15',n:'La Estrella',g:40,r:30}
+  {k:'z15',n:'La Estrella',g:40,r:30},
+  {k:'z16',n:'Terminal del Sur',g:30,r:25},
+  {k:'z17',n:'Terminal del Norte',g:28,r:22}
 ];
 var IZ={
   z1:{z2:12,z3:15,z4:22,z5:25,z6:20,z7:18,z8:20,z9:22,z10:25,z11:40,z12:45,z13:35,z14:38,z15:55},
@@ -286,9 +288,25 @@ var IZ={
   z12:{z1:45,z2:47,z3:48,z4:52,z5:42,z6:25,z7:22,z8:40,z9:42,z10:28,z11:18,z13:55,z14:57,z15:28},
   z13:{z1:35,z2:38,z3:40,z4:22,z5:45,z6:40,z7:40,z8:38,z9:40,z10:45,z11:50,z12:55,z14:12,z15:62},
   z14:{z1:38,z2:40,z3:42,z4:25,z5:48,z6:42,z7:42,z8:40,z9:43,z10:47,z11:52,z12:57,z13:12,z15:65},
-  z15:{z1:55,z2:57,z3:58,z4:62,z5:50,z6:40,z7:30,z8:50,z9:52,z10:38,z11:28,z12:28,z13:62,z14:65}
+  z15:{z1:55,z2:57,z3:58,z4:62,z5:50,z6:40,z7:30,z8:50,z9:52,z10:38,z11:28,z12:28,z13:62,z14:65,z16:35,z17:60},
+  z16:{z1:30,z2:32,z3:33,z4:38,z5:18,z6:20,z7:22,z8:28,z9:25,z10:20,z11:15,z12:20,z13:45,z14:48,z15:35,z17:55},
+  z17:{z1:28,z2:25,z3:22,z4:18,z5:38,z6:35,z7:32,z8:30,z9:42,z10:45,z11:40,z12:50,z13:15,z14:18,z15:60,z16:55}
 };
 function gz(k){return ZN.find(function(z){return z.k===k;});}
+
+// Provider list with real names and zone times
+var PROVZ=[
+  {k:'p1', n:'AUTODICOL',              g:20, r:18},
+  {k:'p2', n:'BBC',                    g:38, r:30},
+  {k:'p3', n:'AMG',                    g:22, r:18},
+  {k:'p4', n:'VASLO',                  g:22, r:18},
+  {k:'p5', n:'EMPAQUES FRACO',         g:18, r:15},
+  {k:'p6', n:'EMPAQUES JAIME',         g:15, r:12},
+  {k:'p7', n:'UNIVERSAL DE REPUESTOS', g:40, r:30},
+  {k:'p8', n:'TYM',                    g:30, r:25},
+  {k:'p9', n:'MOTOR PARTERS',          g:28, r:22}
+];
+function gpz(k){return PROVZ.find(function(z){return z.k===k;});}
 function calcR(cz,doms){
   if(!cz||!cz.length)return{total:30,ret:20};
   var fz=gz(cz[0])||{g:20,r:20},lz=gz(cz[cz.length-1])||{r:20},go=fz.g;
@@ -296,9 +314,12 @@ function calcR(cz,doms){
   return{total:go+(doms||1)*5+lz.r,ret:lz.r};
 }
 function calcPR(pz,cz,doms){
-  if(!cz||!cz.length){var pzo=gz(pz)||{g:20,r:20};return{total:pzo.g+pzo.r,ret:pzo.r};}
+  // pz can be a provider key (p1..p9) or zone key (z1..z15)
+  var pzo=gpz(pz)||gz(pz)||{g:20,r:20};
+  if(!cz||!cz.length){return{total:pzo.g+pzo.r,ret:pzo.r};}
   var lz=gz(cz[cz.length-1])||{r:20};
-  var p2c=(IZ[pz]&&IZ[pz][cz[0]])?IZ[pz][cz[0]]:(gz(cz[0])||{g:15}).g;
+  // Use provider go time to first client zone (no IZ for providers)
+  var p2c=pzo.g;
   var bet=0;
   for(var i=1;i<cz.length;i++){var f=cz[i-1],t=cz[i];bet+=(IZ[f]&&IZ[f][t])?IZ[f][t]:12;}
   return{total:p2c+bet+(doms||1)*5+lz.r,ret:lz.r};
@@ -587,7 +608,7 @@ function rTrip(el){
   var sumH='<span style="color:var(--t3)">Selecciona zonas para ver el tiempo estimado</span>';
   if(hp||hc){
     var cN=TRIP.cz.map(function(k){var z=gz(k);return z?z.n:k;}).join(' → ');
-    var pvN=TRIP.pz?(gz(TRIP.pz)||{}).n||'':'';
+    var pvN=TRIP.pz?(gpz(TRIP.pz)||gz(TRIP.pz)||{}).n||'':'';
     if(hp&&hc){var rr=calcPR(TRIP.pz,TRIP.cz,TRIP.doms);sumH='<div style="line-height:1.8"><div><i class="ti ti-building-store" style="color:var(--purple);font-size:12px"></i> <span style="color:var(--purple)">Prov: '+xe(pvN)+'</span></div><div><i class="ti ti-motorbike" style="color:var(--accent);font-size:12px"></i> '+xe(cN)+'</div><div style="color:var(--green);font-weight:600"><i class="ti ti-clock" style="font-size:12px"></i> ~'+rr.total+' min estimado</div></div>';}
     else if(hp){var pzo2=gz(TRIP.pz)||{g:15,r:15};sumH='<span style="color:var(--purple)"><i class="ti ti-building-store" style="font-size:12px"></i> Solo prov: '+xe(pvN)+' — ~'+(pzo2.g+pzo2.r)+' min</span>';}
     else{var rr2=calcR(TRIP.cz,TRIP.doms);sumH='<span style="color:var(--green)"><i class="ti ti-check" style="font-size:12px"></i> '+xe(cN)+' — ~'+rr2.total+' min</span>';}
@@ -613,7 +634,8 @@ function rTrip(el){
 // ─── MID-ROUTE PROVIDER ────────────────────────────────────────────────────────
 function rMidProv(el){
   var zC=ZN.map(function(z){return '<div class="zc'+(MIDPZ===z.k?' sp':'')+'" onclick="selMPZ(\''+z.k+'\')"><div class="zc-n">'+xe(z.n)+'</div><div class="zc-t p">~'+z.g+' min</div></div>';}).join('');
-  var sumH=MIDPZ?'<span style="color:var(--purple)"><i class="ti ti-building-store" style="font-size:12px"></i> '+xe((gz(MIDPZ)||{}).n||'')+' — ~'+(gz(MIDPZ)||{g:15}).g+' min al proveedor</span>':'<span style="color:var(--t3)">Selecciona la zona del proveedor</span>';
+  var _mpz=gpz(MIDPZ)||gz(MIDPZ)||{n:'',g:15};
+  var sumH=MIDPZ?'<span style="color:var(--purple)"><i class="ti ti-building-store" style="font-size:12px"></i> '+xe(_mpz.n)+' — ~'+_mpz.g+' min al proveedor</span>':'<span style="color:var(--t3)">Selecciona el proveedor</span>';
   el.innerHTML='<div class="st-hdr"><div class="st-l"><div class="st-av">'+ini(MSN)+'</div><div><div class="st-nm">'+xe(MSN)+'</div><div class="st-dt">Parar en proveedor</div></div></div><button class="btn-chg" onclick="SCR=\'main\';MIDPZ=null;rM()"><i class="ti ti-x" style="font-size:11px"></i> Cancelar</button></div>'+
     '<div class="fw fi"><div class="sec on-p"><div class="sec-hdr"><div class="sec-hl"><i class="ti ti-building-store" style="color:var(--purple)"></i> ¿Dónde queda el proveedor?</div></div><span class="flbl" style="color:var(--purple)">Zona del proveedor</span><div class="zg">'+zC+'</div></div>'+
     '<div class="sum-box'+(MIDPZ?' has':'')+'">'+sumH+'</div>'+
@@ -638,7 +660,7 @@ function confTrip(){
   if(!hp&&!hc){var er=document.getElementById('cferr');if(er)er.textContent='Selecciona al menos una zona.';return;}
   var now=Date.now();
   var cN=TRIP.cz.map(function(k){var z=gz(k);return z?z.n:k;}).join(' → ');
-  var pzo=hp?gz(TRIP.pz):null;
+  var pzo=hp?(gpz(TRIP.pz)||gz(TRIP.pz)):null;
   var data;
   if(hp&&!hc){
     data={state:'a_prov',pvZ:TRIP.pz,pvN:pzo.n,pvT:nowT(),ts:now,tM:pzo.g,etaT:etaS(pzo.g+pzo.r),sT:nowT(),cz:[],czN:'',doms:TRIP.doms};
@@ -667,7 +689,7 @@ function confTrip(){
 function confMidProv(){
   if(!MIDPZ){var er=document.getElementById('mperr');if(er)er.textContent='Selecciona la zona del proveedor.';return;}
   var st=gSt(MSN)||{},now=Date.now();
-  var pzo=gz(MIDPZ)||{g:15,r:15};
+  var pzo=gpz(MIDPZ)||gz(MIDPZ)||{g:15,r:15};
   var data=Object.assign({},st,{
     state:'a_prov',pvZ:MIDPZ,pvN:pzo.n,pvT:nowT(),ts:now,tM:pzo.g,etaT:etaS(pzo.g+pzo.r),
     pausedZones:st.zones||[],pausedLZ:st.lZ,pausedZN:st.zN,
@@ -701,7 +723,7 @@ function mSalPv(){
     sSt(MSN,Object.assign({},st,{state:'en_ruta',zones:st.cz,lZ:st.cz[st.cz.length-1],zN:st.czN||'',ts:now,tM:rr.total,etaT:etaS(rr.total),lfPv:nowT(),wtM:wm}));
     aH(today(),MSN,{state:'en_ruta',time:nowT(),zone:st.czN||'',note:'Desde prov. Esperó '+wm+' min'});
   } else {
-    var pzo=gz(st.pvZ)||{r:20};
+    var pzo=gpz(st.pvZ)||gz(st.pvZ)||{r:20};
     sSt(MSN,Object.assign({},st,{state:'devolviendo',ts:now,tM:pzo.r,etaT:etaS(pzo.r),lfPv:nowT(),wtM:wm,tDv:nowT()}));
     aH(today(),MSN,{state:'devolviendo',time:nowT(),note:'Regresa tras proveedor'});
   }
