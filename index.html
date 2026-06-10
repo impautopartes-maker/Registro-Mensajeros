@@ -602,7 +602,7 @@ function rSt(el){
 
 // ─── TRIP FORM ─────────────────────────────────────────────────────────────────
 function rTrip(el){
-  var pC=ZN.map(function(z){return '<div class="zc'+(TRIP.pz===z.k?' sp':'')+'" onclick="tPZ(\''+z.k+'\')"><div class="zc-n">'+xe(z.n)+'</div><div class="zc-t p">~'+z.g+' min</div></div>';}).join('');
+  var pC=PROVZ.map(function(z){return '<div class="zc'+(TRIP.pz===z.k?' sp':'')+'" onclick="tPZ(\''+z.k+'\')"><div class="zc-n">'+xe(z.n)+'</div><div class="zc-t p">~'+z.g+' min</div></div>';}).join('');
   var cC=ZN.map(function(z){return '<div class="zc'+(TRIP.cz.indexOf(z.k)>=0?' sc':'')+'" onclick="tCZ(\''+z.k+'\')"><div class="zc-n">'+xe(z.n)+'</div><div class="zc-t">~'+z.g+' min</div></div>';}).join('');
   var hp=TRIP.hasProv&&TRIP.pz,hc=TRIP.cz.length>0;
   var sumH='<span style="color:var(--t3)">Selecciona zonas para ver el tiempo estimado</span>';
@@ -633,7 +633,7 @@ function rTrip(el){
 
 // ─── MID-ROUTE PROVIDER ────────────────────────────────────────────────────────
 function rMidProv(el){
-  var zC=ZN.map(function(z){return '<div class="zc'+(MIDPZ===z.k?' sp':'')+'" onclick="selMPZ(\''+z.k+'\')"><div class="zc-n">'+xe(z.n)+'</div><div class="zc-t p">~'+z.g+' min</div></div>';}).join('');
+  var zC=PROVZ.map(function(z){return '<div class="zc'+(MIDPZ===z.k?' sp':'')+'" onclick="selMPZ(\''+z.k+'\')"><div class="zc-n">'+xe(z.n)+'</div><div class="zc-t p">~'+z.g+' min</div></div>';}).join('');
   var _mpz=gpz(MIDPZ)||gz(MIDPZ)||{n:'',g:15};
   var sumH=MIDPZ?'<span style="color:var(--purple)"><i class="ti ti-building-store" style="font-size:12px"></i> '+xe(_mpz.n)+' — ~'+_mpz.g+' min al proveedor</span>':'<span style="color:var(--t3)">Selecciona el proveedor</span>';
   el.innerHTML='<div class="st-hdr"><div class="st-l"><div class="st-av">'+ini(MSN)+'</div><div><div class="st-nm">'+xe(MSN)+'</div><div class="st-dt">Parar en proveedor</div></div></div><button class="btn-chg" onclick="SCR=\'main\';MIDPZ=null;rM()"><i class="ti ti-x" style="font-size:11px"></i> Cancelar</button></div>'+
