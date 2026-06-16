@@ -333,7 +333,16 @@ function lg(k,d){try{var v=localStorage.getItem(k);return v===null?d:JSON.parse(
 function ls(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
 
 async function initFB(){
-  var cfg=lg(Kf,null);if(!cfg)return false;
+  // Firebase config hardcoded - no manual setup needed
+  var cfg={
+    apiKey:"AIzaSyBEivqFARrpf6eAp5doZALFm2CwKZqMfaY",
+    authDomain:"control-mensajeros-9b217.firebaseapp.com",
+    databaseURL:"https://control-mensajeros-9b217-default-rtdb.firebaseio.com/",
+    projectId:"control-mensajeros-9b217",
+    storageBucket:"control-mensajeros-9b217.firebasestorage.app",
+    messagingSenderId:"35290482060",
+    appId:"1:35290482060:web:5b874cd97927e1927042a9"
+  };
   try{
     var am=await import('https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js');
     var dm=await import('https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js');
@@ -940,7 +949,7 @@ async function rA(){
       '<textarea id="fbt" placeholder="{&quot;apiKey&quot;:&quot;...&quot;}" style="height:70px;font-size:10px;resize:vertical"></textarea>';
     body='<div class="sw fi"><div class="sblk"><h3><i class="ti ti-building"></i> Empresa</h3><div class="ir"><input type="text" id="cmp" value="'+xe(getCo())+'"><button class="bic" onclick="saveCo()"><i class="ti ti-check"></i></button></div></div>'+
       '<div class="sblk"><h3><i class="ti ti-lock"></i> Contraseña</h3><input type="password" id="np1" placeholder="Nueva contraseña" style="margin-bottom:6px"><input type="password" id="np2" placeholder="Confirmar"><div id="pmsg" class="ok-msg"></div><button class="btn b-ru mt8" onclick="chgP()"><i class="ti ti-lock-check"></i> Guardar</button></div>'+
-      '<div class="sblk"><h3><i class="ti ti-database"></i> Firebase</h3>'+fbH+'<button class="btn b-gh mt8" onclick="saveFb()"><i class="ti ti-plug"></i> Conectar</button></div>'+
+      '<div class="sblk"><h3><i class="ti ti-database"></i> Firebase</h3><span class="cob"><i class="ti ti-check" style="font-size:12px"></i> Firebase conectado automáticamente</span></div>'+
       '<button class="btn b-gh" onclick="doOut()"><i class="ti ti-logout"></i> Cerrar sesión</button></div>';
   }
   el.innerHTML=bar+body;
