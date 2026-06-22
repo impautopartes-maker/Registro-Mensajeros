@@ -665,11 +665,18 @@ function goMidProv(){MIDPZ=null;SCR='midprov';rM();}
 function selMPZ(k){MIDPZ=k;rM();}
 
 function confTrip(){
-  var hp=TRIP.hasProv&&TRIP.pz,hc=TRIP.cz.length>0;
-  if(!hp&&!hc){var er=document.getElementById('cferr');if(er)er.textContent='Selecciona al menos una zona.';return;}
+  var hp=TRIP.hasProv&&TRIP.pz, hc=TRIP.cz.length>0;
+  var er=document.getElementById('cferr');
+  // Validations
+  if(!hp&&!hc){if(er)er.textContent='Selecciona al menos una zona de cliente.';return;}
+  if(hp&&!hc&&!TRIP.pz){if(er)er.textContent='Selecciona la zona del proveedor.';return;}
   var now=Date.now();
   var cN=TRIP.cz.map(function(k){var z=gz(k);return z?z.n:k;}).join(' → ');
-  var pzo=hp?(gpz(TRIP.pz)||gz(TRIP.pz)):null;
+  var pzo=null;
+  if(hp){
+    pzo=gpz(TRIP.pz)||gz(TRIP.pz);
+    if(!pzo){if(er)er.textContent='Proveedor no encontrado. Selecciona de nuevo.';return;}
+  }
   var data;
   if(hp&&!hc){
     data={state:'a_prov',pvZ:TRIP.pz,pvN:pzo.n,pvT:nowT(),ts:now,tM:pzo.g,etaT:etaS(pzo.g+pzo.r),sT:nowT(),cz:[],czN:'',doms:TRIP.doms};
@@ -680,6 +687,8 @@ function confTrip(){
     var rr2=calcR(TRIP.cz,TRIP.doms);
     data={state:'en_ruta',zones:TRIP.cz,lZ:TRIP.cz[TRIP.cz.length-1],zN:cN,doms:TRIP.doms,dC:0,allD:false,dT:{},tM:rr2.total,ts:now,sT:nowT(),etaT:etaS(rr2.total)};
   }
+  // Clear error
+  if(er)er.textContent='';
   // Save each pre-trip photo separately to Firebase
   var photos=TRIP.photos.slice();
   for(var pi=0;pi<photos.length;pi++){
@@ -691,8 +700,11 @@ function confTrip(){
   }
   sSt(MSN,data);
   aH(today(),MSN,{state:data.state,time:nowT(),zone:pzo?pzo.n+(hc?' → '+cN:''):cN,doms:TRIP.doms,etaT:data.etaT});
+  // Reset trip state and navigate
   TRIP={hasProv:false,pz:null,cz:[],doms:1,photos:[]};
-  SCR='main';rM();
+  SCR='main';
+  // Small delay to ensure localStorage is written before reading
+  setTimeout(function(){rM();},50);
 }
 
 function confMidProv(){
