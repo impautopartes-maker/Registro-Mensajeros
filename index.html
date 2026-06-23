@@ -506,6 +506,7 @@ var TRIP={hasProv:false,pz:null,cz:[],doms:1,photos:[]};
 var MIDPZ=null;
 var HFILT={msn:'all',hr:'all'};
 var CAM_CTX=null;
+var BUSY=false; // prevent double-tap
 // Trip form photos stored by index for safe onclick
 var FPHSTORE=[];
 
@@ -664,18 +665,18 @@ function tPhRoute(num){CAM_CTX='r'+num;document.getElementById('cam').click();}
 function goMidProv(){MIDPZ=null;SCR='midprov';rM();}
 function selMPZ(k){MIDPZ=k;rM();}
 
-function confTrip(){
+function confTrip(){if(BUSY) return; BUSY=true;
   var hp=TRIP.hasProv&&TRIP.pz, hc=TRIP.cz.length>0;
   var er=document.getElementById('cferr');
   // Validations
-  if(!hp&&!hc){if(er)er.textContent='Selecciona al menos una zona de cliente.';return;}
-  if(hp&&!hc&&!TRIP.pz){if(er)er.textContent='Selecciona la zona del proveedor.';return;}
+  if(!hp&&!hc){if(er)er.textContent='Selecciona al menos una zona de cliente.';BUSY=false;return;}
+  if(hp&&!hc&&!TRIP.pz){if(er)er.textContent='Selecciona la zona del proveedor.';BUSY=false;return;}
   var now=Date.now();
   var cN=TRIP.cz.map(function(k){var z=gz(k);return z?z.n:k;}).join(' → ');
   var pzo=null;
   if(hp){
     pzo=gpz(TRIP.pz)||gz(TRIP.pz);
-    if(!pzo){if(er)er.textContent='Proveedor no encontrado. Selecciona de nuevo.';return;}
+    if(!pzo){if(er)er.textContent='Proveedor no encontrado. Selecciona de nuevo.';BUSY=false;return;}
   }
   var data;
   if(hp&&!hc){
@@ -703,8 +704,7 @@ function confTrip(){
   // Reset trip state and navigate
   TRIP={hasProv:false,pz:null,cz:[],doms:1,photos:[]};
   SCR='main';
-  // Small delay to ensure localStorage is written before reading
-  setTimeout(function(){rM();},50);
+  setTimeout(function(){BUSY=false;rM();},300);
 }
 
 function confMidProv(){
@@ -751,21 +751,26 @@ function mSalPv(){
   rM();
 }
 function mEnt(num){
-  var st=gSt(MSN)||{},now=Date.now();
+  if(BUSY) return; BUSY=true;
+  var st=gSt(MSN)||{};
+  // Prevent duplicate: if already delivered this pedido, ignore
+  if(st.dT&&st.dT['p'+num]){BUSY=false;rM();return;}
+  var now=Date.now();
   var nc=(st.dC||0)+1,dT=st.dT||{};
   dT['p'+num]=nowT();
   var allD=nc>=(st.doms||1);
   if(allD){var lzo=gz(st.lZ)||{r:20};sSt(MSN,Object.assign({},st,{dC:nc,allD:true,dT:dT,ts:now,tM:lzo.r,etaT:etaS(lzo.r)}));}
   else sSt(MSN,Object.assign({},st,{dC:nc,dT:dT}));
   aH(today(),MSN,{state:'entregando',time:nowT(),pedido:num,zone:st.zN||''});
-  rM();
+  setTimeout(function(){BUSY=false;rM();},300);
 }
 function mVolver(){
+  if(BUSY) return; BUSY=true;
   var st=gSt(MSN)||{},now=Date.now();
   var lzo=gz(st.lZ)||{r:20};
   sSt(MSN,Object.assign({},st,{state:'devolviendo',ts:now,tM:lzo.r,etaT:etaS(lzo.r),tDv:nowT()}));
   aH(today(),MSN,{state:'devolviendo',time:nowT()});
-  rM();
+  setTimeout(function(){BUSY=false;rM();},300);
 }
 function mOffline(){
   sSt(MSN,{state:'offline',ts:Date.now()});
@@ -778,11 +783,12 @@ function mOnline(){
   rM();
 }
 function mLibre(){
+  if(BUSY) return; BUSY=true;
   var st=gSt(MSN)||{};
   var dur=st.sT?Math.round(seElap(st.ts||Date.now())/60):0;
   aH(today(),MSN,{state:'libre',time:nowT(),duration:dur});
   sSt(MSN,{state:'libre',ts:Date.now()});
-  rM();
+  setTimeout(function(){BUSY=false;rM();},300);
 }
 
 // ─── CAMERA ────────────────────────────────────────────────────────────────────
@@ -835,8 +841,8 @@ function tickAll(){
 }
 setInterval(tickAll,1000);
 setInterval(function(){if(VIEW==='a'&&ADMIN&&ATAB==='live')rA();},20000);
-function selM(n){MSN=n;SCR='main';rM();}
-function chgM(){MSN='';SCR='main';rM();}
+function selM(n){MSN=n;ls('mt_msn',n);SCR='main';rM();}
+function chgM(){MSN='';ls('mt_msn','');SCR='main';rM();}
 
 // ─── ADMIN ─────────────────────────────────────────────────────────────────────
 async function rA(){
@@ -846,7 +852,7 @@ async function rA(){
     setTimeout(function(){var p=document.getElementById('pin');if(p)p.onkeydown=function(e){if(e.key==='Enter')doLog();};},50);
     return;
   }
-  var tabs=[{k:'live',l:'En Vivo',ic:'ti-radio'},{k:'history',l:'Historial',ic:'ti-history'},{k:'settings',l:'Config',ic:'ti-settings'}];
+  var tabs=[{k:'live',l:'En Vivo',ic:'ti-radio'},{k:'history',l:'Historial',ic:'ti-history'},{k:'export',l:'Excel',ic:'ti-file-spreadsheet'},{k:'settings',l:'Config',ic:'ti-settings'}];
   var bar='<div class="adm-tabs">'+tabs.map(function(t){return '<button class="atab'+(ATAB===t.k?' on':'')+'" onclick="setAT(\''+t.k+'\')"><i class="ti '+t.ic+'"></i>'+t.l+'</button>';}).join('')+'</div>';
   // Show spinner while loading from Firebase
   el.innerHTML=bar+'<div class="spin-wrap"><i class="ti ti-refresh"></i>Cargando...</div>';
@@ -954,6 +960,37 @@ async function rA(){
       '<div class="htbl"><table><thead><tr><th>Mensajero</th><th>Estado</th><th>Hora</th><th>Zona</th><th>Dur./Foto</th></tr></thead>'+
       '<tbody>'+(rows.length?rows.join(''):'<tr><td colspan="5" style="text-align:center;color:var(--t3);padding:20px">Sin registros</td></tr>')+'</tbody></table></div></div>';
 
+  } else if(ATAB==='export'){
+    var curDate=new Date();
+    var curY=curDate.getFullYear();
+    var curM=curDate.getMonth()+1;
+    var months=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+    var mOpts2='';
+    for(var mi=1;mi<=12;mi++){
+      mOpts2+='<option value="'+mi+'"'+(mi===curM?' selected':'')+'>'+months[mi-1]+'</option>';
+    }
+    var yOpts='';
+    for(var yi=2024;yi<=curY+1;yi++){
+      yOpts+='<option value="'+yi+'"'+(yi===curY?' selected':'')+'>'+yi+'</option>';
+    }
+    body='<div class="sw fi">'+
+      '<div class="sblk"><h3><i class="ti ti-calendar"></i> Exportar por mes</h3>'+
+        '<div style="display:flex;gap:8px;margin-bottom:12px">'+
+          '<select id="exp-m" style="flex:1;padding:9px 10px;font-size:13px">'+mOpts2+'</select>'+
+          '<select id="exp-y" style="flex:1;padding:9px 10px;font-size:13px">'+yOpts+'</select>'+
+        '</div>'+
+        '<button class="btn b-ru" onclick="exportMonth()"><i class="ti ti-file-spreadsheet"></i> Descargar Excel del mes</button>'+
+      '</div>'+
+      '<div class="sblk"><h3><i class="ti ti-calendar-stats"></i> Exportar por rango de fechas</h3>'+
+        '<div style="margin-bottom:8px"><span class="flbl">Fecha inicio</span>'+
+          '<input type="date" id="exp-d1" value="'+today()+'" style="padding:9px 10px;font-size:13px"></div>'+
+        '<div style="margin-bottom:12px"><span class="flbl">Fecha fin</span>'+
+          '<input type="date" id="exp-d2" value="'+today()+'" style="padding:9px 10px;font-size:13px"></div>'+
+        '<button class="btn b-ru" onclick="exportRange()"><i class="ti ti-file-spreadsheet"></i> Descargar Excel del rango</button>'+
+      '</div>'+
+      '<div id="exp-status" style="font-size:12px;color:var(--t3);text-align:center;margin-top:8px"></div>'+
+    '</div>';
+
   } else {
     var hasFb=!!lg(Kf,null);
     var fbH=hasFb?'<div style="margin-bottom:8px"><span class="cob"><i class="ti ti-check" style="font-size:12px"></i> Firebase conectado</span></div><textarea id="fbt" style="height:70px;font-size:10px;resize:vertical">'+xe(JSON.stringify(lg(Kf,{}),null,2))+'</textarea>':
@@ -975,8 +1012,130 @@ function chgP(){var p1=(document.getElementById('np1')||{}).value,p2=(document.g
 function saveCo(){var v=(document.getElementById('cmp')||{}).value;if(v&&v.trim()){ls(Kc,v.trim());document.getElementById('cosub').textContent=v.trim();rA();}}
 async function saveFb(){var raw=(document.getElementById('fbt')||{}).value||'';try{var cfg=JSON.parse(raw.trim());ls(Kf,cfg);var ok=await initFB();if(ok){alert('Firebase conectado.');rA();}else alert('No se pudo conectar.');}catch(e){alert('JSON inválido.');}}
 
+// ─── EXPORT TO EXCEL ──────────────────────────────────────────────────────────
+function getDatesInRange(start, end){
+  var dates=[], cur=new Date(start+'T12:00:00');
+  var endD=new Date(end+'T12:00:00');
+  while(cur<=endD){
+    dates.push(cur.toLocaleDateString('en-CA',{timeZone:TZ}));
+    cur.setDate(cur.getDate()+1);
+  }
+  return dates;
+}
+
+async function exportMonth(){
+  var m=parseInt(document.getElementById('exp-m').value);
+  var y=parseInt(document.getElementById('exp-y').value);
+  var start=y+'-'+(m<10?'0':'')+m+'-01';
+  var lastDay=new Date(y,m,0).getDate();
+  var end=y+'-'+(m<10?'0':'')+m+'-'+(lastDay<10?'0':'')+lastDay;
+  var months=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  var st=document.getElementById('exp-status');
+  if(st)st.textContent='Cargando datos...';
+  await exportDates(getDatesInRange(start,end), months[m-1]+' '+y);
+}
+
+async function exportRange(){
+  var d1=(document.getElementById('exp-d1')||{}).value;
+  var d2=(document.getElementById('exp-d2')||{}).value;
+  if(!d1||!d2){alert('Selecciona las fechas.');return;}
+  if(d1>d2){alert('La fecha inicio debe ser antes que la fecha fin.');return;}
+  var st=document.getElementById('exp-status');
+  if(st)st.textContent='Cargando datos...';
+  await exportDates(getDatesInRange(d1,d2), fmtD(d1)+' al '+fmtD(d2));
+}
+
+async function exportDates(dates, title){
+  var allRows=[];
+  // Fetch all dates
+  for(var di=0;di<dates.length;di++){
+    var date=dates[di];
+    var hist;
+    if(FB){
+      try{
+        var s=await fbGet(fbRef(fbDb,'mt_h/'+date));
+        var v=s.val();
+        if(v){
+          hist={};
+          Object.keys(v).forEach(function(msnKey){
+            var msnData=v[msnKey];
+            if(msnData&&typeof msnData==='object'){
+              hist[msnKey]=[];
+              Object.keys(msnData).forEach(function(pushId){
+                if(msnData[pushId]) hist[msnKey].push(msnData[pushId]);
+              });
+              hist[msnKey].sort(function(a,b){return (a.time||'').localeCompare(b.time||'');});
+            }
+          });
+        } else { hist=gH(date); }
+      }catch(e){ hist=gH(date); }
+    } else { hist=gH(date); }
+
+    if(!hist) continue;
+    CREW.forEach(function(m){
+      var entries=hist[m]||[];
+      entries.forEach(function(e){
+        if(e.state==='foto') return; // skip photo entries
+        var stL=(e.state||'').replace(/_/g,' ');
+        allRows.push({
+          Fecha: date,
+          Mensajero: m,
+          Estado: stL,
+          Hora: e.time||'',
+          Zona: e.zone||e.note||'',
+          Proveedor: e.note&&e.note.indexOf('prov')>=0?e.note:'',
+          Domicilios: e.doms||'',
+          Duracion_min: e.duration||'',
+          ETA: e.etaT||''
+        });
+      });
+    });
+  }
+
+  if(allRows.length===0){
+    var st=document.getElementById('exp-status');
+    if(st)st.textContent='No hay registros en ese período.';
+    return;
+  }
+
+  // Sort by date then time
+  allRows.sort(function(a,b){
+    var d=a.Fecha.localeCompare(b.Fecha);
+    if(d!==0) return d;
+    return a.Hora.localeCompare(b.Hora);
+  });
+
+  // Build CSV (Excel compatible)
+  var cols=['Fecha','Mensajero','Estado','Hora','Zona','Proveedor','Domicilios','Duracion_min','ETA'];
+  var csv='﻿'; // BOM for Excel UTF-8
+  csv+=cols.join(';')+'\n';
+  allRows.forEach(function(r){
+    csv+=cols.map(function(c){
+      var v=String(r[c]||'').replace(/;/g,' ');
+      return v;
+    }).join(';')+'\n';
+  });
+
+  // Download
+  var blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  a.href=url;
+  a.download='MotoTrack_'+title.replace(/ /g,'_')+'.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  var st=document.getElementById('exp-status');
+  if(st)st.textContent='Descargado: '+allRows.length+' registros.';
+}
+
 async function init(){
   VDATE=today();
+  // Restore messenger selection if page was refreshed
+  var savedMsn=lg('mt_msn','');
+  if(savedMsn&&CREW.indexOf(savedMsn)>=0) MSN=savedMsn;
   document.getElementById('cosub').textContent=getCo();
   await initFB();
   rM();
