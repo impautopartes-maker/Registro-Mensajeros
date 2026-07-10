@@ -409,11 +409,14 @@ function getPhoto(id,cb){
 async function fetchAllStates(){
   if(FB){
     try{
-      var s=await fbGet(fbRef(fbDb,'mt_s'));
+      var fbP=fbGet(fbRef(fbDb,'mt_s'));
+      var toP=new Promise(function(r){setTimeout(function(){r(null);},5000);});
+      var s=await Promise.race([fbP,toP]);
+      if(!s){var o={};CREW.forEach(function(m){var v=lg('mt_s_'+m,null);if(v)o[m]=v;});return o;}
       var v=s.val()||{};
       Object.keys(v).forEach(function(m){ls('mt_s_'+m,v[m]);});
       return v;
-    }catch(e){}
+    }catch(e){console.error('fetchAllStates error:',e);}
   }
   var o={};CREW.forEach(function(m){var v=lg('mt_s_'+m,null);if(v)o[m]=v;});
   return o;
@@ -422,20 +425,29 @@ async function fetchAllStates(){
 async function fetchHist(date){
   if(FB){
     try{
-      var s=await fbGet(fbRef(fbDb,'mt_h/'+date));
+      // Add 5s timeout to prevent infinite spinner
+      var fbPromise=fbGet(fbRef(fbDb,'mt_h/'+date));
+      var timeoutPromise=new Promise(function(resolve){setTimeout(function(){resolve(null);},5000);});
+      var s=await Promise.race([fbPromise,timeoutPromise]);
+      if(!s){console.warn('fetchHist timeout');return gH(date);}
       var v=s.val();
       if(v){
-        // Convert from push structure {msn: {push_id: entry}} to {msn: [entry, entry]}
+        // Data can be either:
+        // OLD: {msn: [entry, entry]} (array)
+        // NEW: {msn: {push_id: entry}} (push keys)
         var rebuilt={};
         Object.keys(v).forEach(function(msnKey){
           var msnData=v[msnKey];
-          if(msnData && typeof msnData==='object'){
+          if(!msnData) return;
+          if(Array.isArray(msnData)){
+            // Old format - use as is
+            rebuilt[msnKey]=msnData;
+          } else if(typeof msnData==='object'){
             rebuilt[msnKey]=[];
             Object.keys(msnData).forEach(function(pushId){
               var entry=msnData[pushId];
               if(entry) rebuilt[msnKey].push(entry);
             });
-            // Sort by time if possible
             rebuilt[msnKey].sort(function(a,b){
               return (a.time||'').localeCompare(b.time||'');
             });
@@ -444,7 +456,7 @@ async function fetchHist(date){
         ls('mt_h_'+date,rebuilt);
         return rebuilt;
       }
-    }catch(e){}
+    }catch(e){console.error('fetchHist error:',e);}
   }
   return gH(date);
 }
