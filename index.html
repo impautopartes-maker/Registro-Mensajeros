@@ -504,6 +504,7 @@ var VIEW='m',MSN='',ADMIN=false,ATAB='live',VDATE='';
 var SCR='main'; // main | trip | midprov
 var TRIP={hasProv:false,pz:null,cz:[],doms:1,photos:[]};
 var MIDPZ=null;
+var ODO={km:'',photo:null}; // temp odometer data
 var HFILT={msn:'all',hr:'all'};
 var CAM_CTX=null;
 var BUSY=false; // prevent double-tap
@@ -525,6 +526,8 @@ function rM(){
   if(!MSN){rSel(el);return;}
   if(SCR==='trip'){rTrip(el);return;}
   if(SCR==='midprov'){rMidProv(el);return;}
+  if(SCR==='odo-start'){rOdo(el,'start');return;}
+  if(SCR==='odo-end'){rOdo(el,'end');return;}
   rSt(el);
 }
 function rSel(el){
@@ -571,14 +574,16 @@ function rSt(el){
     if(st.wtM)rows+='<div class="ri-row"><span class="ri-l"><i class="ti ti-clock" style="font-size:11px"></i> Esperó</span><span class="ri-v">'+st.wtM+' min</span></div>';
     if(st.sT)rows+='<div class="ri-row"><span class="ri-l"><i class="ti ti-clock" style="font-size:11px"></i> Salió</span><span class="ri-v">'+st.sT+'</span></div>';
     if(st.etaT)rows+='<div class="ri-row"><span class="ri-l"><i class="ti ti-target" style="font-size:11px"></i> ETA regreso</span><span class="ri-v '+ec+'">'+st.etaT+'</span></div>';
+    if(st.km_start)rows+='<div class="ri-row"><span class="ri-l"><i class="ti ti-gauge" style="font-size:11px"></i> Km inicio</span><span class="ri-v cg">'+st.km_start+' km</span></div>';
+    if(st.km_diff&&st.km_diff>0)rows+='<div class="ri-row"><span class="ri-l"><i class="ti ti-road" style="font-size:11px"></i> Km hoy</span><span class="ri-v ca">'+st.km_diff+' km</span></div>';
     riH='<div class="ri-box">'+rows+'</div>';
   }
   var dH='',btns='';
   if(stk==='offline'){
-    btns='<button class="btn b-li" onclick="mOnline()"><i class="ti ti-sun"></i> Estoy disponible</button>';
+    btns='<button class="btn b-li" onclick="goOdoStart()"><i class="ti ti-sun"></i> Estoy disponible</button>';
   } else if(stk==='libre'){
     btns='<button class="btn b-ru" onclick="goTrip()"><i class="ti ti-motorbike"></i> Configurar y salir</button>'+
-      '<button class="btn b-of" onclick="mOffline()"><i class="ti ti-moon"></i> No disponible / Almuerzo</button>';
+      '<button class="btn b-of" onclick="goOdoEnd()"><i class="ti ti-moon"></i> No disponible / Almuerzo</button>';
   } else if(stk==='a_prov'){
     btns='<button class="btn b-ep" onclick="mEsp()"><i class="ti ti-hourglass"></i> Llegué — Esperando despacho</button>';
   } else if(stk==='esperando'){
@@ -608,6 +613,81 @@ function rSt(el){
   }
   var lbH=isL?'<div class="late-bn"><i class="ti ti-alert-triangle" style="font-size:16px;flex-shrink:0"></i>Llevas '+fs(rem)+' de retraso</div>':'';
   el.innerHTML='<div class="st-hdr"><div class="st-l"><div class="st-av">'+ini(MSN)+'</div><div><div class="st-nm">'+xe(MSN)+'</div><div class="st-dt">'+fmtD(today())+'</div></div></div><button class="btn-chg" onclick="chgM()"><i class="ti ti-refresh" style="font-size:11px"></i> Cambiar</button></div><div class="st-body fi"><div class="cur-st '+(isL?'cs-la':c.cs)+'"><div class="cs-left"><div class="cs-ic '+c.ic+'"><i class="ti '+c.icon+'"></i></div><div><div class="cs-lbl">'+c.l+'</div><div class="cs-sub">'+c.s+'</div></div></div><span class="sbadge '+c.sb+'">'+c.l.toUpperCase()+'</span></div>'+riH+cdH+wH+dH+lbH+'<div class="act-btns">'+btns+'</div></div>';
+}
+
+// ─── ODOMETER SCREENS ─────────────────────────────────────────────────────────
+function rOdo(el,type){
+  var isStart=type==='start';
+  var title=isStart?'Inicio de turno':'Fin de turno';
+  var icon=isStart?'ti-sun':'ti-moon';
+  var color=isStart?'var(--green)':'var(--purple)';
+  var btnLabel=isStart?'Iniciar turno':'Finalizar turno';
+  var btnClass=isStart?'b-li':'b-pv';
+
+  // Show current photo if taken
+  var phHtml='';
+  if(ODO.photo){
+    phHtml='<div class="ph-grid" style="grid-template-columns:1fr;margin-bottom:10px">'+
+      '<div class="ph-item" style="aspect-ratio:16/9">'+
+        '<img src="'+ODO.photo+'" onclick="openPh(ODO.photo)" alt="Odómetro" style="object-fit:contain;background:#000">'+
+        '<button class="ph-del" onclick="ODO.photo=null;rM()">×</button>'+
+        '<div class="ph-lbl">Foto odómetro</div>'+
+      '</div></div>';
+  } else {
+    phHtml='<div style="font-size:12px;color:var(--t3);text-align:center;margin-bottom:10px;padding:14px;background:var(--bg2);border:1px dashed var(--border);border-radius:var(--rx)">'+
+      '<i class="ti ti-camera" style="font-size:20px;display:block;margin-bottom:6px"></i>Toma foto del odómetro</div>';
+  }
+
+  el.innerHTML=
+    '<div class="st-hdr"><div class="st-l"><div class="st-av">'+ini(MSN)+'</div>'+
+    '<div><div class="st-nm">'+xe(MSN)+'</div><div class="st-dt">'+title+'</div></div></div>'+
+    '<button class="btn-chg" onclick="ODO={km:'',photo:null};SCR='main';rM()"><i class="ti ti-x" style="font-size:11px"></i> Cancelar</button></div>'+
+    '<div class="fw fi">'+
+    '<div class="sec" style="border-color:'+color+';background:rgba(0,0,0,.1)">'+
+      '<div class="sec-hdr"><div class="sec-hl"><i class="ti '+icon+'" style="color:'+color+'"></i> '+title+'</div></div>'+
+      '<span class="flbl">Kilometraje actual del odómetro</span>'+
+      '<input type="number" id="odo-km" placeholder="Ej: 45230" value="'+ODO.km+'" '+
+        'oninput="ODO.km=this.value" '+
+        'style="font-size:20px;font-weight:700;text-align:center;letter-spacing:.05em;margin-bottom:12px">'+
+      '<div class="sec-hdr" style="margin-top:4px"><div class="sec-hl"><i class="ti ti-camera" style="color:var(--blue)"></i> Foto del odómetro</div></div>'+
+      phHtml+
+      '<button class="btn b-cm" onclick="tPhOdo()"><i class="ti ti-camera-plus"></i> '+(ODO.photo?'Cambiar foto':'Tomar foto')+'</button>'+
+    '</div>'+
+    '<div id="odo-err" class="err"></div>'+
+    '<button class="btn '+btnClass+' mt8" onclick="confOdo(''+type+'')"><i class="ti '+icon+'"></i> '+btnLabel+'</button>'+
+    '</div>';
+}
+
+function goOdoStart(){ODO={km:'',photo:null};SCR='odo-start';rM();}
+function goOdoEnd(){ODO={km:'',photo:null};SCR='odo-end';rM();}
+function tPhOdo(){CAM_CTX='odo';document.getElementById('cam').click();}
+
+function confOdo(type){
+  if(BUSY)return;BUSY=true;
+  var km=parseFloat(ODO.km);
+  var er=document.getElementById('odo-err');
+  if(!ODO.km||isNaN(km)||km<=0){if(er)er.textContent='Ingresa el kilometraje.';BUSY=false;return;}
+  if(!ODO.photo){if(er)er.textContent='Toma la foto del odómetro.';BUSY=false;return;}
+  var isStart=type==='start';
+  // Save photo separately
+  savePhoto(ODO.photo,function(pid){
+    var now=Date.now();
+    if(isStart){
+      // Mark online with km_start
+      sSt(MSN,{state:'libre',ts:now,km_start:km,km_start_time:nowT(),km_start_photo:pid});
+      aH(today(),MSN,{state:'online',time:nowT(),km:km,kmPhotoId:pid,note:'Inicio turno km: '+km});
+    } else {
+      // Mark offline with km_end - calc daily km
+      var st=gSt(MSN)||{};
+      var kmStart=st.km_start||0;
+      var kmDiff=kmStart>0&&km>kmStart?Math.round(km-kmStart):0;
+      sSt(MSN,{state:'offline',ts:now,km_end:km,km_end_time:nowT(),km_end_photo:pid,km_start:kmStart,km_diff:kmDiff});
+      aH(today(),MSN,{state:'offline',time:nowT(),km:km,kmPhotoId:pid,kmDiff:kmDiff,note:'Fin turno km: '+km+(kmDiff>0?' ('+kmDiff+' km recorridos)':'')});
+    }
+    ODO={km:'',photo:null};
+    SCR='main';
+    setTimeout(function(){BUSY=false;rM();},300);
+  });
 }
 
 // ─── TRIP FORM ─────────────────────────────────────────────────────────────────
@@ -799,7 +879,10 @@ document.getElementById('cam').addEventListener('change',function(ev){
   rd.onload=function(e){
     var raw=e.target.result;
     compressImg(raw,function(b64){
-      if(CAM_CTX==='form'){
+      if(CAM_CTX==='odo'){
+        ODO.photo=b64;
+        CAM_CTX=null;ev.target.value='';rM();
+      } else if(CAM_CTX==='form'){
         TRIP.photos.push({b64:b64,time:nowT()});
         CAM_CTX=null;ev.target.value='';rM();
       } else {
