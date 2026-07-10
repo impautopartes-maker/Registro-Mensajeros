@@ -641,7 +641,7 @@ function rOdo(el,type){
   el.innerHTML=
     '<div class="st-hdr"><div class="st-l"><div class="st-av">'+ini(MSN)+'</div>'+
     '<div><div class="st-nm">'+xe(MSN)+'</div><div class="st-dt">'+title+'</div></div></div>'+
-    '<button class="btn-chg" onclick="ODO={km:'',photo:null};SCR='main';rM()"><i class="ti ti-x" style="font-size:11px"></i> Cancelar</button></div>'+
+    '<button class="btn-chg" onclick="cancelOdo()"><i class="ti ti-x" style="font-size:11px"></i> Cancelar</button></div>'+
     '<div class="fw fi">'+
     '<div class="sec" style="border-color:'+color+';background:rgba(0,0,0,.1)">'+
       '<div class="sec-hdr"><div class="sec-hl"><i class="ti '+icon+'" style="color:'+color+'"></i> '+title+'</div></div>'+
@@ -654,10 +654,11 @@ function rOdo(el,type){
       '<button class="btn b-cm" onclick="tPhOdo()"><i class="ti ti-camera-plus"></i> '+(ODO.photo?'Cambiar foto':'Tomar foto')+'</button>'+
     '</div>'+
     '<div id="odo-err" class="err"></div>'+
-    '<button class="btn '+btnClass+' mt8" onclick="confOdo(''+type+'')"><i class="ti '+icon+'"></i> '+btnLabel+'</button>'+
+    '<button class="btn '+btnClass+' mt8" onclick="confOdo(this.dataset.t)" data-t="'+type+'"><i class="ti '+icon+'"></i> '+btnLabel+'</button>'+
     '</div>';
 }
 
+function cancelOdo(){ODO={km:'',photo:null};SCR='main';rM();}
 function goOdoStart(){ODO={km:'',photo:null};SCR='odo-start';rM();}
 function goOdoEnd(){ODO={km:'',photo:null};SCR='odo-end';rM();}
 function tPhOdo(){CAM_CTX='odo';document.getElementById('cam').click();}
